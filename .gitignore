@@ -1,0 +1,29 @@
+# Dependencies & Build
+node_modules/
+dist/
+build/
+.cache/
+.vite/
+vite.config.*.timestamp-*
+*.tsbuildinfo
+*-debug.log*
+logs/
+*.log
+.claude-replay.*
+.tmp-*
+
+# Environment & Secrets
+.env*
+!.env.example
+
+# Local temporary / migration scripts
+test-*.js
+update-*.js
+fix-*.js
+
+# Local raw assets / temp folders at root
+/.figma/
+/2x/
+/Refrensi/
+/Data/
+/Icon/
