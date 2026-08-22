@@ -358,11 +358,11 @@ export default function ProjectDetail() {
           </div>
         </section>
 
-        {/* ── HERO MEDIA SECTION: Video Embed or Cover Image ─────────── */}
+        {/* ── HERO MEDIA SECTION: Video Embed or High-Res Cover Frame ─────────── */}
         {videoEmbedUrl ? (
           <section className="max-w-[1440px] mx-auto px-6 md:px-16 pb-16">
             <div
-              className="w-full aspect-video rounded-lg overflow-hidden shadow-xl border bg-black"
+              className="w-full aspect-video rounded-lg md:rounded-xl overflow-hidden shadow-xl border bg-black"
               style={{ borderColor: 'var(--color-border)' }}
             >
               <iframe
@@ -375,28 +375,37 @@ export default function ProjectDetail() {
             </div>
           </section>
         ) : (
-          <div
-            className="w-full overflow-hidden flex items-center justify-center cursor-pointer group relative"
-            style={{ height: 'clamp(320px, 55vh, 650px)', backgroundColor: 'var(--color-border-light)' }}
-            onClick={() => project.cover_url && setSelectedImage(project.cover_url)}
-          >
-            {project.cover_url ? (
-              <>
-                <img
-                  src={project.cover_url}
-                  alt={project.title}
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.01]"
-                />
-                <div className="absolute inset-0 bg-black/15 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                  <span className="bg-black/80 text-white font-mono text-xs px-4 py-2 rounded-full shadow-lg">
-                    🔍 Klik untuk memperbesar foto cover
-                  </span>
+          <section className="max-w-[1440px] mx-auto px-6 md:px-16 pb-16">
+            <div
+              className="w-full rounded-lg md:rounded-xl overflow-hidden border shadow-md relative group cursor-pointer transition-all duration-300"
+              style={{
+                borderColor: 'var(--color-border)',
+                backgroundColor: '#0F0F11',
+              }}
+              onClick={() => project.cover_url && setSelectedImage(project.cover_url)}
+            >
+              {project.cover_url ? (
+                <>
+                  <div className="w-full flex items-center justify-center p-2 sm:p-4 md:p-6 min-h-[320px] max-h-[760px] overflow-hidden">
+                    <img
+                      src={project.cover_url}
+                      alt={project.title}
+                      className="w-full h-auto max-h-[700px] object-contain rounded-md transition-transform duration-500 group-hover:scale-[1.01]"
+                    />
+                  </div>
+                  <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
+                    <span className="bg-black/85 text-white font-mono text-xs px-4 py-2 rounded-full shadow-xl backdrop-blur-xs">
+                      🔍 Klik untuk memperbesar foto cover
+                    </span>
+                  </div>
+                </>
+              ) : (
+                <div className="py-24 text-center">
+                  <p className="font-mono text-xs" style={{ color: 'var(--color-muted)' }}>Tidak ada gambar cover</p>
                 </div>
-              </>
-            ) : (
-              <p className="font-mono text-xs text-gray-400">Tidak ada gambar cover</p>
-            )}
-          </div>
+              )}
+            </div>
+          </section>
         )}
 
         {/* ── MODULAR CASE STUDY SECTIONS ─────────────────────────────── */}
