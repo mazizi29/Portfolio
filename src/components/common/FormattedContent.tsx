@@ -1,4 +1,4 @@
-import React from 'react'
+import React from "react"
 
 interface FormattedContentProps {
   text?: string
@@ -6,32 +6,80 @@ interface FormattedContentProps {
   textColor?: string
 }
 
-type ContentBlock =
-  | { type: 'paragraph'; text: string }
-  | { type: 'bullet-list'; items: string[] }
-  | { type: 'numbered-list'; items: { number: string; text: string }[] }
+type ContentBlock = { type: "paragraph" text: string } | {
+  type: "bullet-list"
+  items: string[]
+} | { type: "numbered-list" items: { number: string text: string }[] }
+
+/**
+ * Parses inline formatting like **bold**, *italic*, and `code` safely into React nodes.
+ */
+function renderInlineFormatting(
+  rawText: string,
+  defaultColor: string,
+): React.ReactNode {
+  // Regex to split by **bold**, *italic*, or `code`
+  const parts = rawText.split(/(\*\*[^*]+\*\*|\*[^*]+\*|`[^`]+`)/g)
+
+  return parts.map((part, index) => {
+    if (part.startsWith("**") && part.endsWith("**") && part.length >= 4) {
+      return (
+        <strong
+          key={index}
+          className="font-bold"
+          style={{ color: "var(--color-ink)" }}
+        >
+          {part.slice(2, -2)}
+        </strong>
+      )
+    }
+    if (part.startsWith("*") && part.endsWith("*") && part.length >= 2) {
+      return (
+        <em key={index} className="italic">
+          {part.slice(1, -1)}
+        </em>
+      )
+    }
+    if (part.startsWith("`") && part.endsWith("`") && part.length >= 2) {
+      return (
+        <code
+          key={index}
+          className="font-mono text-xs px-1.5 py-0.5 rounded border"
+          style={{
+            backgroundColor: "#F3F4F6",
+            borderColor: "var(--color-border)",
+            color: "var(--color-ink)",
+          }}
+        >
+          {part.slice(1, -1)}
+        </code>
+      )
+    }
+    return <React.Fragment key={index}>{part}</React.Fragment>
+  })
+}
 
 export default function FormattedContent({
-  text = '',
-  className = '',
-  textColor = 'var(--color-ink)'
+  text = "",
+  className = "",
+  textColor = "var(--color-ink)",
 }: FormattedContentProps) {
   if (!text || !text.trim()) {
     return null
   }
 
-  const lines = text.split('\n')
+  const lines = text.split("\n")
   const blocks: ContentBlock[] = []
 
   let currentBulletItems: string[] = []
-  let currentNumberedItems: { number: string; text: string }[] = []
+  let currentNumberedItems: { number: string text: string }[] = []
   let currentParagraphLines: string[] = []
 
   const flushParagraph = () => {
     if (currentParagraphLines.length > 0) {
-      const paragraphText = currentParagraphLines.join('\n').trim()
+      const paragraphText = currentParagraphLines.join("\n").trim()
       if (paragraphText) {
-        blocks.push({ type: 'paragraph', text: paragraphText })
+        blocks.push({ type: "paragraph", text: paragraphText })
       }
       currentParagraphLines = []
     }
@@ -39,14 +87,14 @@ export default function FormattedContent({
 
   const flushBulletList = () => {
     if (currentBulletItems.length > 0) {
-      blocks.push({ type: 'bullet-list', items: [...currentBulletItems] })
+      blocks.push({ type: "bullet-list", items: [...currentBulletItems] })
       currentBulletItems = []
     }
   }
 
   const flushNumberedList = () => {
     if (currentNumberedItems.length > 0) {
-      blocks.push({ type: 'numbered-list', items: [...currentNumberedItems] })
+      blocks.push({ type: "numbered-list", items: [...currentNumberedItems] })
       currentNumberedItems = []
     }
   }
@@ -77,7 +125,7 @@ export default function FormattedContent({
       flushBulletList()
       currentNumberedItems.push({
         number: numberedMatch[1],
-        text: numberedMatch[2]
+        text: numberedMatch[2],
       })
     } else {
       flushBulletList()
@@ -92,32 +140,45 @@ export default function FormattedContent({
   flushNumberedList()
 
   return (
-    <div className={`flex flex-col gap-4 ${className}`} style={{ color: textColor }}>
+    <div
+      className={`flex flex-col gap-4 ${className}`}
+      style={{ color: textColor }}
+    >
       {blocks.map((block, idx) => {
-        if (block.type === 'paragraph') {
+        if (block.type === "paragraph") {
           return (
             <p
               key={idx}
-              className="text-base leading-relaxed whitespace-pre-line"
-              style={{ color: textColor, maxWidth: '680px' }}
+              className="text-sm md:text-base leading-relaxed whitespace-pre-line"
+              style={{ color: textColor, maxWidth: "720px" }}
             >
-              {block.text}
+              {renderInlineFormatting(block.text, textColor)}
             </p>
           )
         }
 
-        if (block.type === 'bullet-list') {
+        if (block.type === "bullet-list") {
           return (
-            <ul key={idx} className="flex flex-col gap-2.5 my-1" style={{ maxWidth: '680px' }}>
+            <ul
+              key={idx}
+              className="flex flex-col gap-2.5 my-1"
+              style={{ maxWidth: "720px" }}
+            >
               {block.items.map((item, itemIdx) => (
-                <li key={itemIdx} className="flex items-start gap-3 text-base leading-relaxed">
+                <li
+                  key={itemIdx}
+                  className="flex items-start gap-3 text-sm md:text-base leading-relaxed"
+                >
                   <span
                     className="inline-block shrink-0 mt-2.5 w-1.5 h-1.5 rounded-full"
-                    style={{ backgroundColor: 'var(--color-ink)', opacity: 0.7 }}
+                    style={{
+                      backgroundColor: "var(--color-ink)",
+                      opacity: 0.7,
+                    }}
                     aria-hidden="true"
                   />
                   <span className="flex-1" style={{ color: textColor }}>
-                    {item}
+                    {renderInlineFormatting(item, textColor)}
                   </span>
                 </li>
               ))}
@@ -125,23 +186,30 @@ export default function FormattedContent({
           )
         }
 
-        if (block.type === 'numbered-list') {
+        if (block.type === "numbered-list") {
           return (
-            <ol key={idx} className="flex flex-col gap-2.5 my-1" style={{ maxWidth: '680px' }}>
+            <ol
+              key={idx}
+              className="flex flex-col gap-2.5 my-1"
+              style={{ maxWidth: "720px" }}
+            >
               {block.items.map((item, itemIdx) => (
-                <li key={itemIdx} className="flex items-start gap-3 text-base leading-relaxed">
+                <li
+                  key={itemIdx}
+                  className="flex items-start gap-3 text-sm md:text-base leading-relaxed"
+                >
                   <span
                     className="font-mono text-xs tracking-wider font-semibold shrink-0 mt-1 px-1.5 py-0.5 rounded border"
                     style={{
-                      borderColor: 'var(--color-border)',
-                      backgroundColor: 'var(--color-surface)',
-                      color: 'var(--color-muted)'
+                      borderColor: "var(--color-border)",
+                      backgroundColor: "var(--color-surface)",
+                      color: "var(--color-muted)",
                     }}
                   >
-                    {item.number.padStart(2, '0')}
+                    {item.number.padStart(2, "0")}
                   </span>
                   <span className="flex-1" style={{ color: textColor }}>
-                    {item.text}
+                    {renderInlineFormatting(item.text, textColor)}
                   </span>
                 </li>
               ))}

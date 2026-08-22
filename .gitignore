@@ -20,6 +20,7 @@ logs/
 test-*.js
 update-*.js
 fix-*.js
+generate-cover.*
 
 # Local raw assets / temp folders at root
 /.figma/
