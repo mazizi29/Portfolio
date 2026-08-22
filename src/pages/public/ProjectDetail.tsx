@@ -7,6 +7,7 @@ import { projects as mockProjects } from '@/data/mockData'
 import {
   normalizeCategory,
   getProjectSubcategory,
+  normalizeProjectSections,
   getYouTubeEmbedUrl,
   Project,
   ProjectSection,
@@ -113,19 +114,12 @@ export default function ProjectDetail() {
     return <Navigate to="/work" replace />
   }
 
-  const getRenderSections = (): ProjectSection[] => {
-    if (project.sections && Array.isArray(project.sections) && project.sections.length > 0) {
-      return project.sections.filter((s) => s.content && s.content.trim() !== '')
-    }
-    const fallbackList: ProjectSection[] = [
-      { id: '01', label: 'Overview', sublabel: 'Gambaran Umum', content: project.overview || '' },
-      { id: '02', label: 'Problem', sublabel: 'Permasalahan & Tantangan', content: project.problem || '' },
-      { id: '03', label: 'Result', sublabel: 'Hasil & Solusi', content: project.result || '' },
-    ]
-    return fallbackList.filter((s) => s.content && s.content.trim() !== '')
-  }
-
-  const sections = getRenderSections()
+  const sections = normalizeProjectSections(
+    project.sections,
+    project.overview,
+    project.problem,
+    project.result
+  ).filter((s) => s.content && s.content.trim() !== '')
 
   const tools = Array.isArray(project.tools)
     ? project.tools
@@ -418,16 +412,16 @@ export default function ProjectDetail() {
                   className="grid md:grid-cols-4 gap-6 md:gap-8 py-14 border-t"
                   style={{ borderColor: 'var(--color-border)' }}
                 >
-                  <div>
-                    <span className="font-mono text-xs" style={{ color: 'var(--color-muted)', letterSpacing: '0.06em' }}>
-                      {sec.id || `0${idx + 1}`}
+                  <div className="flex flex-col gap-1">
+                    <span className="font-mono text-xs font-semibold" style={{ color: 'var(--color-muted)', letterSpacing: '0.08em' }}>
+                      {sec.id || (idx < 9 ? `0${idx + 1}` : `${idx + 1}`)}
                     </span>
-                    <p className="font-sans font-bold text-base mt-1" style={{ color: 'var(--color-ink)' }}>
-                      {sec.sublabel || sec.label}
-                    </p>
-                    {sec.sublabel && sec.label && (
-                      <p className="font-mono text-xs mt-0.5 uppercase tracking-wider text-gray-400">
-                        {sec.label}
+                    <h3 className="font-sans font-bold text-lg leading-snug" style={{ color: 'var(--color-ink)', letterSpacing: '-0.01em' }}>
+                      {sec.label}
+                    </h3>
+                    {sec.sublabel && (
+                      <p className="font-mono text-xs uppercase tracking-wider text-gray-400 mt-0.5" style={{ letterSpacing: '0.05em' }}>
+                        {sec.sublabel}
                       </p>
                     )}
                   </div>

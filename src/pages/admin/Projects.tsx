@@ -12,6 +12,7 @@ import {
   CASE_STUDY_PRESETS,
   normalizeCategory,
   getProjectSubcategory,
+  normalizeProjectSections,
   getYouTubeEmbedUrl,
 } from '@/types/project'
 
@@ -45,6 +46,7 @@ export default function AdminProjects() {
           ...p,
           category: normalizeCategory(p.category),
           subcategory: getProjectSubcategory(p),
+          sections: normalizeProjectSections(p.sections, p.overview, p.problem, p.result),
           gallery:
             Array.isArray(p.project_gallery) && p.project_gallery.length > 0
               ? [...p.project_gallery]
@@ -654,27 +656,12 @@ function ProjectForm({
   }
 
   const getInitialSections = (): ProjectSection[] => {
-    if (project?.sections && Array.isArray(project.sections) && project.sections.length > 0) {
-      return project.sections
-    }
-    const list: ProjectSection[] = []
-    if (project?.overview) {
-      list.push({ id: '01', label: 'Overview', sublabel: 'Gambaran Umum & Tujuan', content: project.overview })
-    }
-    if (project?.problem) {
-      list.push({ id: '02', label: 'Problem & Architecture', sublabel: 'Tantangan & Permasalahan', content: project.problem })
-    }
-    if (project?.result) {
-      list.push({ id: '03', label: 'Result & Impact', sublabel: 'Hasil & Solusi', content: project.result })
-    }
-    if (list.length === 0) {
-      return [
-        { id: '01', label: 'Overview', sublabel: 'Gambaran Umum & Tujuan', content: '' },
-        { id: '02', label: 'Problem / Process', sublabel: 'Tantangan & Proses Kerja', content: '' },
-        { id: '03', label: 'Result & Impact', sublabel: 'Hasil & Pembelajaran', content: '' },
-      ]
-    }
-    return list
+    return normalizeProjectSections(
+      project?.sections,
+      project?.overview,
+      project?.problem,
+      project?.result
+    )
   }
 
   const initialSubcategory = getProjectSubcategory(project)
@@ -1305,7 +1292,7 @@ function ProjectForm({
                         className="font-mono text-xs font-bold px-2 py-0.5 rounded"
                         style={{ backgroundColor: 'var(--color-border)', color: 'var(--color-ink)' }}
                       >
-                        {sec.id || `0${idx + 1}`}
+                        {sec.id || (idx < 9 ? `0${idx + 1}` : `${idx + 1}`)}
                       </span>
                       <input
                         type="text"

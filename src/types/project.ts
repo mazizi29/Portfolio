@@ -299,3 +299,53 @@ export function getProjectSubcategory(project?: Partial<Project> | null): string
   return ''
 }
 
+/**
+ * Normalizes project case study sections from DB JSON/JSONB or legacy overview/problem/result columns.
+ */
+export function normalizeProjectSections(
+  sections?: any,
+  overview?: string,
+  problem?: string,
+  result?: string
+): ProjectSection[] {
+  let parsed = sections
+  if (typeof sections === 'string') {
+    try {
+      parsed = JSON.parse(sections)
+    } catch {
+      parsed = null
+    }
+  }
+
+  if (Array.isArray(parsed) && parsed.length > 0) {
+    return parsed.map((s, idx) => ({
+      id: s.id || (idx < 9 ? `0${idx + 1}` : `${idx + 1}`),
+      label: s.label || `Section ${idx + 1}`,
+      sublabel: s.sublabel || '',
+      content: typeof s.content === 'string' ? s.content : '',
+    }))
+  }
+
+  const list: ProjectSection[] = []
+  if (overview && overview.trim()) {
+    list.push({ id: '01', label: 'Overview', sublabel: 'Gambaran Umum & Tujuan', content: overview })
+  }
+  if (problem && problem.trim()) {
+    list.push({ id: '02', label: 'Problem & Architecture', sublabel: 'Tantangan & Permasalahan', content: problem })
+  }
+  if (result && result.trim()) {
+    list.push({ id: '03', label: 'Result & Impact', sublabel: 'Hasil & Solusi', content: result })
+  }
+
+  if (list.length === 0) {
+    return [
+      { id: '01', label: 'Overview', sublabel: 'Gambaran Umum & Tujuan', content: '' },
+      { id: '02', label: 'Problem & Architecture', sublabel: 'Tantangan & Permasalahan', content: '' },
+      { id: '03', label: 'Result & Impact', sublabel: 'Hasil & Solusi', content: '' },
+    ]
+  }
+
+  return list
+}
+
+
