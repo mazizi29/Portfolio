@@ -25,13 +25,21 @@ export const SUBCATEGORY_SUGGESTIONS: Record<MainCategory, string[]> = {
     "Product Redesign",
   ],
   "Creative & Multimedia": [
-    "Branding & Visual Identity",
-    "Commercial Videography",
-    "Video Editing & Motion",
+    "Visual Identity & Logo",
+    "Social Media & Content Design",
+    "Corporate & Editorial Design",
+    "Video Production & Editing",
+    "Motion Graphics & Animation",
     "Commercial Photography",
-    "Graphic Design & Poster",
-    "Editorial & Print",
   ],
+}
+
+export interface GalleryItem {
+  id?: string
+  image_url: string
+  title?: string
+  caption?: string
+  sort_order?: number
 }
 
 export interface ProjectSection {
@@ -57,7 +65,7 @@ export interface Project {
   status: "draft" | "published"
   featured: boolean
   cover_url: string
-  gallery?: string[]
+  gallery?: (string | GalleryItem | any)[]
 
   // Legacy / fallback case study fields
   overview?: string
@@ -82,8 +90,13 @@ export interface Project {
 export const CASE_STUDY_PRESETS: {
   name: string
   category: MainCategory
-  sections: { label: string sublabel: string placeholder: string }[]
+  sections: { label: string; sublabel: string; placeholder: string }[]
 }[] = [
+  {
+    name: "Visual Showcase / Clean Gallery (Karya Desain)",
+    category: "Creative & Multimedia",
+    sections: [],
+  },
   {
     name: "Engineering / Software App",
     category: "Engineering & Tech",
@@ -345,7 +358,8 @@ export function normalizeProjectSections(
     }
   }
 
-  if (Array.isArray(parsed) && parsed.length > 0) {
+  if (Array.isArray(parsed)) {
+    if (parsed.length === 0) return []
     return parsed.map((s, idx) => ({
       id: s.id || (idx < 9 ? `0${idx + 1}` : `${idx + 1}`),
       label: s.label || `Section ${idx + 1}`,
@@ -380,30 +394,120 @@ export function normalizeProjectSections(
     })
   }
 
-  if (list.length === 0) {
-    return [
-      {
-        id: "01",
-        label: "Overview",
-        sublabel: "Gambaran Umum & Tujuan",
-        content: "",
-      },
-      {
-        id: "02",
-        label: "Problem & Architecture",
-        sublabel: "Tantangan & Permasalahan",
-        content: "",
-      },
-      {
-        id: "03",
-        label: "Result & Impact",
-        sublabel: "Hasil & Solusi",
-        content: "",
-      },
-    ]
+  return list
+}
+
+/**
+ * Normalizes gallery items from diverse sources (string URLs, DB rows, or structured GalleryItem objects).
+ * Also accepts optional project tags / metadata to seamlessly restore titles and captions if DB columns are missing.
+ */
+export function normalizeGallery(
+  gallery?: any,
+  tagsOrMeta?: any,
+): GalleryItem[] {
+  if (!gallery) return []
+
+  let rawList = gallery
+  if (typeof gallery === "string") {
+    try {
+      rawList = JSON.parse(gallery)
+    } catch {
+      rawList = [gallery]
+    }
   }
 
-  return list
+  if (!Array.isArray(rawList)) return []
+
+  // Extract metadata map from tags if provided
+  const metaMap: Record<number, { title?: string; caption?: string }> = {}
+  if (Array.isArray(tagsOrMeta)) {
+    for (const tag of tagsOrMeta) {
+      if (typeof tag === "string") {
+        if (tag.startsWith("__gmeta:")) {
+          try {
+            const parsed = JSON.parse(tag.slice(8))
+            if (Array.isArray(parsed)) {
+              for (const m of parsed) {
+                if (typeof m?.idx === "number") {
+                  metaMap[m.idx] = {
+                    title: typeof m.title === "string" ? m.title.trim() : "",
+                    caption:
+                      typeof m.caption === "string" ? m.caption.trim() : "",
+                  }
+                }
+              }
+            }
+          } catch {
+            // ignore json parse error
+          }
+        } else if (tag.startsWith("__gallery_meta:")) {
+          try {
+            const parsed = JSON.parse(tag.slice(15))
+            if (Array.isArray(parsed)) {
+              for (const m of parsed) {
+                if (typeof m?.idx === "number") {
+                  metaMap[m.idx] = {
+                    title: typeof m.title === "string" ? m.title.trim() : "",
+                    caption:
+                      typeof m.caption === "string" ? m.caption.trim() : "",
+                  }
+                }
+              }
+            }
+          } catch {
+            // ignore json parse error
+          }
+        }
+      }
+    }
+  }
+
+  const results: GalleryItem[] = []
+  for (let idx = 0; idx < rawList.length; idx++) {
+    const item = rawList[idx]
+    if (!item) continue
+
+    const meta = metaMap[idx] || {}
+
+    if (typeof item === "string") {
+      const trimmed = item.trim()
+      if (trimmed) {
+        results.push({
+          id: `img-${idx + 1}`,
+          image_url: trimmed,
+          title: meta.title || "",
+          caption: meta.caption || "",
+          sort_order: idx + 1,
+        })
+      }
+    } else if (typeof item === "object" && item.image_url) {
+      const trimmedUrl = String(item.image_url).trim()
+      if (trimmedUrl) {
+        const titleVal =
+          (typeof item.title === "string" && item.title.trim()) ||
+          meta.title ||
+          ""
+        const captionVal =
+          (typeof item.caption === "string" && item.caption.trim()) ||
+          meta.caption ||
+          ""
+
+        results.push({
+          id:
+            typeof item.id === "string" && item.id
+              ? item.id
+              : `img-${idx + 1}`,
+          image_url: trimmedUrl,
+          title: titleVal,
+          caption: captionVal,
+          sort_order:
+            typeof item.sort_order === "number" ? item.sort_order : idx + 1,
+        })
+      }
+    }
+  }
+
+  return results
 }
 
 /**
@@ -507,11 +611,12 @@ export function getProjectLinks(
 }
 
 /**
- * Encodes smart links into tags array so they persist safely even if custom columns do not exist in DB.
+ * Encodes smart links and gallery metadata into tags array so they persist safely even if custom columns do not exist in DB.
  */
 export function encodeProjectTags(
   tags: string[],
   links: Partial<ProjectLinks>,
+  gallery?: (GalleryItem | any)[],
 ): string[] {
   const cleanTags = tags.filter(
     (t) =>
@@ -521,7 +626,9 @@ export function encodeProjectTags(
       !t.startsWith("__insta:") &&
       !t.startsWith("__drive:") &&
       !t.startsWith("__github:") &&
-      !t.startsWith("__live:"),
+      !t.startsWith("__live:") &&
+      !t.startsWith("__gmeta:") &&
+      !t.startsWith("__gallery_meta:"),
   )
 
   if (links.video_url && links.video_url.trim()) {
@@ -535,6 +642,23 @@ export function encodeProjectTags(
   }
   if (links.drive_url && links.drive_url.trim()) {
     cleanTags.push(`__drive:${links.drive_url.trim()}`)
+  }
+
+  // Persist gallery metadata (titles & captions) into tags for 100% reliable fallback storage
+  if (Array.isArray(gallery) && gallery.length > 0) {
+    const metaList = gallery
+      .map((item, idx) => {
+        const title = typeof item?.title === "string" ? item.title.trim() : ""
+        const caption =
+          typeof item?.caption === "string" ? item.caption.trim() : ""
+        if (!title && !caption) return null
+        return { idx, title, caption }
+      })
+      .filter(Boolean)
+
+    if (metaList.length > 0) {
+      cleanTags.push(`__gmeta:${JSON.stringify(metaList)}`)
+    }
   }
 
   return cleanTags
@@ -554,6 +678,8 @@ export function getCleanPublicTags(tags?: any): string[] {
       !t.startsWith("__insta:") &&
       !t.startsWith("__drive:") &&
       !t.startsWith("__github:") &&
-      !t.startsWith("__live:"),
+      !t.startsWith("__live:") &&
+      !t.startsWith("__gmeta:") &&
+      !t.startsWith("__gallery_meta:"),
   )
 }

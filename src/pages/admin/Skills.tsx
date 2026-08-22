@@ -4,7 +4,12 @@ import { getSupabaseClient } from "@/lib/supabase"
 
 const supabase = getSupabaseClient()
 
-type Skill = { id: string name: string category: string order_index: number }
+interface Skill {
+  id: string
+  name: string
+  category: string
+  order_index: number
+}
 
 export default function AdminSkills() {
   const [skills, setSkills] = useState<Skill[]>([])

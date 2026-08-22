@@ -6,10 +6,13 @@ interface FormattedContentProps {
   textColor?: string
 }
 
-type ContentBlock = { type: "paragraph" text: string } | {
-  type: "bullet-list"
-  items: string[]
-} | { type: "numbered-list" items: { number: string text: string }[] }
+type ContentBlock =
+  | { type: "paragraph"; text: string }
+  | {
+      type: "bullet-list"
+      items: string[]
+    }
+  | { type: "numbered-list"; items: { number: string; text: string }[] }
 
 /**
  * Parses inline formatting like **bold**, *italic*, and `code` safely into React nodes.
@@ -35,7 +38,11 @@ function renderInlineFormatting(
     }
     if (part.startsWith("*") && part.endsWith("*") && part.length >= 2) {
       return (
-        <em key={index} className="italic">
+        <em
+          key={index}
+          className="italic font-serif"
+          style={{ color: "inherit" }}
+        >
           {part.slice(1, -1)}
         </em>
       )
@@ -46,7 +53,7 @@ function renderInlineFormatting(
           key={index}
           className="font-mono text-xs px-1.5 py-0.5 rounded border"
           style={{
-            backgroundColor: "#F3F4F6",
+            backgroundColor: "rgba(0,0,0,0.04)",
             borderColor: "var(--color-border)",
             color: "var(--color-ink)",
           }}
@@ -55,24 +62,22 @@ function renderInlineFormatting(
         </code>
       )
     }
-    return <React.Fragment key={index}>{part}</React.Fragment>
+    return <span key={index}>{part}</span>
   })
 }
 
 export default function FormattedContent({
-  text = "",
+  text,
   className = "",
   textColor = "var(--color-ink)",
 }: FormattedContentProps) {
-  if (!text || !text.trim()) {
-    return null
-  }
+  if (!text || !text.trim()) return null
 
   const lines = text.split("\n")
   const blocks: ContentBlock[] = []
 
   let currentBulletItems: string[] = []
-  let currentNumberedItems: { number: string text: string }[] = []
+  let currentNumberedItems: { number: string; text: string }[] = []
   let currentParagraphLines: string[] = []
 
   const flushParagraph = () => {

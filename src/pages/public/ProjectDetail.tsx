@@ -8,10 +8,12 @@ import {
   normalizeCategory,
   getProjectSubcategory,
   normalizeProjectSections,
+  normalizeGallery,
   sortProjectsByOrder,
   getProjectLinks,
   getYouTubeEmbedUrl,
   Project,
+  GalleryItem,
 } from "@/types/project"
 
 const supabase = getSupabaseClient()
@@ -133,7 +135,11 @@ export default function ProjectDetail() {
   const [nextProject, setNextProject] = useState<Project | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
-  const [selectedImage, setSelectedImage] = useState<string | null>(null)
+  const [selectedItem, setSelectedItem] = useState<{
+    image_url: string
+    title?: string
+    caption?: string
+  } | null>(null)
 
   useEffect(() => {
     fetchProject()
@@ -173,18 +179,13 @@ export default function ProjectDetail() {
                 drive_url: links.drive_url,
                 github_url: links.github_url,
                 live_url: links.live_url,
-                gallery:
+                gallery: normalizeGallery(
                   Array.isArray(p.project_gallery) &&
                   p.project_gallery.length > 0
-                    ? [...p.project_gallery]
-                        .sort(
-                          (a: any, b: any) =>
-                            (a.sort_order || 0) - (b.sort_order || 0),
-                        )
-                        .map((g: any) => g.image_url)
-                    : Array.isArray(p.gallery)
-                      ? p.gallery
-                      : [],
+                    ? p.project_gallery
+                    : p.gallery,
+                  p.tags,
+                ),
               }
             })
           : sortedMock
@@ -197,7 +198,11 @@ export default function ProjectDetail() {
         if (mockIdx !== -1) {
           const m = sortedMock[mockIdx]
           const links = getProjectLinks(m)
-          setProject({ ...m, ...links })
+          setProject({
+            ...m,
+            ...links,
+            gallery: normalizeGallery(m.gallery),
+          })
           setPrevProject(sortedMock[mockIdx - 1] || null)
           setNextProject(sortedMock[mockIdx + 1] || null)
           setLoading(false)
@@ -218,7 +223,11 @@ export default function ProjectDetail() {
       if (mockIdx !== -1) {
         const m = sortedMock[mockIdx]
         const links = getProjectLinks(m)
-        setProject({ ...m, ...links })
+        setProject({
+          ...m,
+          ...links,
+          gallery: normalizeGallery(m.gallery),
+        })
         setPrevProject(sortedMock[mockIdx - 1] || null)
         setNextProject(sortedMock[mockIdx + 1] || null)
       } else {
@@ -271,9 +280,7 @@ export default function ProjectDetail() {
           .filter(Boolean)
       : []
 
-  const gallery = Array.isArray(project.gallery)
-    ? project.gallery.filter(Boolean)
-    : []
+  const gallery: GalleryItem[] = normalizeGallery(project.gallery, project.tags)
   const links = getProjectLinks(project)
   const videoEmbedUrl = getYouTubeEmbedUrl(links.video_url || links.live_url)
   const canonicalCategory = normalizeCategory(project.category)
@@ -570,7 +577,12 @@ export default function ProjectDetail() {
                 backgroundColor: "#0F0F11",
               }}
               onClick={() =>
-                project.cover_url && setSelectedImage(project.cover_url)
+                project.cover_url &&
+                setSelectedItem({
+                  image_url: project.cover_url,
+                  title: project.title,
+                  caption: project.subtitle || project.description,
+                })
               }
             >
               {project.cover_url ? (
@@ -602,7 +614,7 @@ export default function ProjectDetail() {
           </section>
         )}
 
-        {/* ── MODULAR CASE STUDY SECTIONS ─────────────────────────────── */}
+        {/* ── MODULAR CASE STUDY SECTIONS (HANYA RENDER JIKA ADA DATA) ─── */}
         {sections.length > 0 && (
           <section className="max-w-[1440px] mx-auto px-5 sm:px-8 md:px-16 py-12 md:py-20">
             <div className="flex flex-col gap-0">
@@ -660,43 +672,91 @@ export default function ProjectDetail() {
                 className="font-mono text-xs tracking-widest uppercase font-semibold"
                 style={{ color: "var(--color-muted)", letterSpacing: "0.14em" }}
               >
-                Galeri Desain &amp; Tangkapan Layar ({gallery.length})
+                {canonicalCategory === "Creative & Multimedia"
+                  ? `Galeri Desain & Karya Visual (${gallery.length})`
+                  : canonicalCategory === "Engineering & Tech"
+                    ? `Tangkapan Layar & Dokumentasi Sistem (${gallery.length})`
+                    : `Galeri Desain & Tangkapan Layar (${gallery.length})`}
               </p>
               <span className="font-mono text-[11px] text-gray-400 hidden sm:inline-block">
                 Klik gambar untuk resolusi penuh
               </span>
             </div>
 
-            {/* Adaptive Grid: Shows full uncropped screens with natural framing */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3.5 sm:gap-5 md:gap-6">
-              {gallery.map((img: string, i: number) => (
-                <div
-                  key={i}
-                  className="group relative flex flex-col items-center justify-center p-2.5 sm:p-3.5 border cursor-pointer transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
-                  style={{
-                    backgroundColor: "var(--color-surface)",
-                    borderRadius: "var(--radius-md)",
-                    borderColor: "var(--color-border)",
-                    minHeight: "260px",
-                  }}
-                  onClick={() => setSelectedImage(img)}
-                >
-                  <div className="w-full flex items-center justify-center overflow-hidden rounded bg-transparent">
-                    <img
-                      src={img}
-                      alt={`Tangkapan Layar ${i + 1}`}
-                      loading="lazy"
-                      className="w-full h-auto max-h-[500px] object-contain transition-transform duration-300 group-hover:scale-[1.02] drop-shadow-sm"
-                    />
-                  </div>
+            {/* Adaptive Grid: Shows natural framing with optional title & 1-sentence caption */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+              {gallery.map((item: GalleryItem, i: number) => {
+                const hasCaptionInfo = Boolean(
+                  (item.title && item.title.trim()) ||
+                    (item.caption && item.caption.trim()),
+                )
 
-                  <div className="absolute inset-0 bg-black/35 opacity-0 group-hover:opacity-100 transition-opacity rounded-md flex items-center justify-center backdrop-blur-xs">
-                    <span className="bg-black/85 text-white font-mono text-xs px-3.5 py-1.5 rounded-full shadow-lg">
-                      🔍 Perbesar
-                    </span>
+                return (
+                  <div
+                    key={item.id || i}
+                    className="group relative flex flex-col justify-between border cursor-pointer transition-all duration-300 hover:shadow-xl hover:-translate-y-1 overflow-hidden"
+                    style={{
+                      backgroundColor: "var(--color-surface)",
+                      borderRadius: "var(--radius-md)",
+                      borderColor: "var(--color-border)",
+                    }}
+                    onClick={() =>
+                      setSelectedItem({
+                        image_url: item.image_url,
+                        title: item.title,
+                        caption: item.caption,
+                      })
+                    }
+                  >
+                    {/* Visual Media Frame */}
+                    <div className="w-full flex items-center justify-center overflow-hidden bg-[#F4F4F2] p-2.5 sm:p-4 min-h-[220px] max-h-[460px]">
+                      <img
+                        src={item.image_url}
+                        alt={item.title || `Visual ${i + 1}`}
+                        loading="lazy"
+                        className="w-full h-auto max-h-[420px] object-contain transition-transform duration-300 group-hover:scale-[1.02] drop-shadow-xs"
+                      />
+                    </div>
+
+                    {/* Editorial Micro-Caption: Clean & only rendered if title or caption exists */}
+                    {hasCaptionInfo && (
+                      <div
+                        className="p-3.5 sm:p-4 border-t bg-white flex flex-col gap-1"
+                        style={{ borderColor: "var(--color-border-light)" }}
+                      >
+                        {item.title && item.title.trim() && (
+                          <h4
+                            className="font-sans font-bold text-xs sm:text-sm leading-snug line-clamp-1"
+                            style={{
+                              color: "var(--color-ink)",
+                              letterSpacing: "-0.01em",
+                            }}
+                            title={item.title}
+                          >
+                            {item.title}
+                          </h4>
+                        )}
+                        {item.caption && item.caption.trim() && (
+                          <p
+                            className="text-[11px] sm:text-xs leading-relaxed line-clamp-2"
+                            style={{ color: "var(--color-muted)" }}
+                            title={item.caption}
+                          >
+                            {item.caption}
+                          </p>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Hover Badge */}
+                    <div className="absolute inset-0 bg-black/35 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-xs pointer-events-none">
+                      <span className="bg-black/85 text-white font-mono text-xs px-3.5 py-1.5 rounded-full shadow-lg">
+                        🔍 Perbesar
+                      </span>
+                    </div>
                   </div>
-                </div>
-              ))}
+                )
+              })}
             </div>
           </section>
         )}
@@ -866,24 +926,46 @@ export default function ProjectDetail() {
         </section>
 
         {/* ── LIGHTBOX MODAL FULLSCREEN ──────────────────────────────── */}
-        {selectedImage && (
+        {selectedItem && (
           <div
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-8 bg-black/85 backdrop-blur-sm"
-            onClick={() => setSelectedImage(null)}
+            className="fixed inset-0 z-50 flex flex-col items-center justify-center p-4 sm:p-6 bg-black/90 backdrop-blur-sm"
+            onClick={() => setSelectedItem(null)}
           >
-            <div className="relative max-w-5xl max-h-[90vh] flex flex-col items-center">
+            <div
+              className="relative max-w-5xl max-h-[90vh] flex flex-col items-center justify-center"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Close Button */}
               <button
-                onClick={() => setSelectedImage(null)}
-                className="absolute -top-10 right-0 text-white font-mono text-sm px-3 py-1 rounded bg-white/20 hover:bg-white/40 cursor-pointer"
+                onClick={() => setSelectedItem(null)}
+                className="absolute -top-10 right-0 text-white font-mono text-xs px-3 py-1.5 rounded-full bg-white/20 hover:bg-white/30 transition-colors cursor-pointer flex items-center gap-1.5 shadow-lg"
               >
-                Tutup ✕
+                <span>Tutup</span>
+                <span>✕</span>
               </button>
+
+              {/* Full Image */}
               <img
-                src={selectedImage}
-                alt="Detail preview"
-                className="max-w-full max-h-[85vh] object-contain rounded-lg shadow-2xl"
-                onClick={(e) => e.stopPropagation()}
+                src={selectedItem.image_url}
+                alt={selectedItem.title || "Detail preview"}
+                className="max-w-full max-h-[75vh] object-contain rounded-lg shadow-2xl"
               />
+
+              {/* Lightbox Caption Bar (Only if title or caption exists) */}
+              {(selectedItem.title || selectedItem.caption) && (
+                <div className="mt-3.5 px-5 py-3 rounded-lg bg-black/70 backdrop-blur-md border border-white/15 text-center max-w-2xl shadow-xl">
+                  {selectedItem.title && (
+                    <p className="text-white font-sans font-bold text-sm sm:text-base leading-snug">
+                      {selectedItem.title}
+                    </p>
+                  )}
+                  {selectedItem.caption && (
+                    <p className="text-gray-300 font-sans text-xs sm:text-sm mt-1 leading-relaxed">
+                      {selectedItem.caption}
+                    </p>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         )}
@@ -891,3 +973,4 @@ export default function ProjectDetail() {
     </PublicLayout>
   )
 }
+

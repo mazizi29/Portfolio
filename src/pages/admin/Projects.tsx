@@ -6,6 +6,7 @@ import { uploadImage } from "@/lib/upload"
 import {
   Project,
   ProjectSection,
+  GalleryItem,
   MAIN_CATEGORIES,
   MainCategory,
   SUBCATEGORY_SUGGESTIONS,
@@ -13,6 +14,7 @@ import {
   normalizeCategory,
   getProjectSubcategory,
   normalizeProjectSections,
+  normalizeGallery,
   sortProjectsByOrder,
   getProjectLinks,
   encodeProjectTags,
@@ -69,17 +71,12 @@ export default function AdminProjects() {
             drive_url: links.drive_url,
             github_url: links.github_url,
             live_url: links.live_url,
-            gallery:
+            gallery: normalizeGallery(
               Array.isArray(p.project_gallery) && p.project_gallery.length > 0
-                ? [...p.project_gallery]
-                    .sort(
-                      (a: any, b: any) =>
-                        (a.sort_order || 0) - (b.sort_order || 0),
-                    )
-                    .map((g: any) => g.image_url)
-                : Array.isArray(p.gallery)
-                  ? p.gallery
-                  : [],
+                ? p.project_gallery
+                : p.gallery,
+              p.tags,
+            ),
           }
         })
         setProjects(sortProjectsByOrder(formatted))
@@ -236,23 +233,31 @@ export default function AdminProjects() {
           .delete()
           .eq("project_id", targetProjectId)
 
-        const cleanGalleryUrls = gallery.filter(
-          (url) => url && typeof url === "string" && url.trim().length > 0,
-        )
-        if (cleanGalleryUrls.length > 0) {
-          const galleryRows = cleanGalleryUrls.map((imgUrl, idx) => ({
+        const cleanGalleryItems = normalizeGallery(gallery)
+        if (cleanGalleryItems.length > 0) {
+          const galleryRows = cleanGalleryItems.map((item, idx) => ({
             project_id: targetProjectId,
-            image_url: imgUrl.trim(),
+            image_url: item.image_url.trim(),
+            title: (item.title || "").trim(),
+            caption: (item.caption || "").trim(),
             sort_order: idx + 1,
           }))
+
           const { error: galleryError } = await supabase
             .from("project_gallery")
             .insert(galleryRows)
+
           if (galleryError) {
             console.warn(
-              "Warning: Error syncing project gallery:",
+              "Warning: Error syncing project gallery with title/caption, falling back to core columns:",
               galleryError,
             )
+            const fallbackRows = cleanGalleryItems.map((item, idx) => ({
+              project_id: targetProjectId,
+              image_url: item.image_url.trim(),
+              sort_order: idx + 1,
+            }))
+            await supabase.from("project_gallery").insert(fallbackRows)
           }
         }
       }
@@ -1012,7 +1017,7 @@ function ProjectForm({
 
     // Media
     cover_url: project?.cover_url || "",
-    gallery: Array.isArray(project?.gallery) ? project.gallery : [],
+    gallery: normalizeGallery(project?.gallery, project?.tags),
   })
 
   const [uploadingGallery, setUploadingGallery] = useState(false)
@@ -1034,12 +1039,14 @@ function ProjectForm({
       return
     }
 
-    const newSections: ProjectSection[] = preset.sections.map((sec, idx) => ({
-      id: idx < 9 ? `0${idx + 1}` : `${idx + 1}`,
-      label: sec.label,
-      sublabel: sec.sublabel,
-      content: "",
-    }))
+    const newSections: ProjectSection[] = (preset.sections || []).map(
+      (sec, idx) => ({
+        id: idx < 9 ? `0${idx + 1}` : `${idx + 1}`,
+        label: sec.label,
+        sublabel: sec.sublabel,
+        content: "",
+      }),
+    )
 
     setForm((prev) => ({
       ...prev,
@@ -1066,10 +1073,6 @@ function ProjectForm({
   }
 
   const handleRemoveSection = (index: number) => {
-    if (form.sections.length <= 1) {
-      alert("Minimal harus ada 1 section studi kasus.")
-      return
-    }
     setForm((prev) => ({
       ...prev,
       sections: prev.sections.filter((_, idx) => idx !== index),
@@ -1094,11 +1097,30 @@ function ProjectForm({
 
   const handleAddGalleryUrl = () => {
     if (!newGalleryUrl.trim()) return
+    const newItem: GalleryItem = {
+      id: `img-${Date.now()}`,
+      image_url: newGalleryUrl.trim(),
+      title: "",
+      caption: "",
+      sort_order: form.gallery.length + 1,
+    }
     setForm((prev) => ({
       ...prev,
-      gallery: [...prev.gallery, newGalleryUrl.trim()],
+      gallery: [...prev.gallery, newItem],
     }))
     setNewGalleryUrl("")
+  }
+
+  const handleUpdateGalleryItem = (
+    index: number,
+    field: "title" | "caption",
+    value: string,
+  ) => {
+    setForm((prev) => {
+      const copy = [...prev.gallery]
+      copy[index] = { ...copy[index], [field]: value }
+      return { ...prev, gallery: copy }
+    })
   }
 
   const handleRemoveGalleryImage = (indexToRemove: number) => {
@@ -1177,13 +1199,17 @@ function ProjectForm({
       liveUrlTrim = videoUrlTrim
     }
 
-    // Safely encode metadata links into tags
-    const finalTags = encodeProjectTags(rawTags, {
-      video_url: videoUrlTrim,
-      figma_url: figmaUrlTrim,
-      instagram_url: instaUrlTrim,
-      drive_url: driveUrlTrim,
-    })
+    // Safely encode metadata links and gallery metadata into tags
+    const finalTags = encodeProjectTags(
+      rawTags,
+      {
+        video_url: videoUrlTrim,
+        figma_url: figmaUrlTrim,
+        instagram_url: instaUrlTrim,
+        drive_url: driveUrlTrim,
+      },
+      form.gallery,
+    )
 
     const overviewText = form.sections[0]?.content || ""
     const problemText = form.sections[1]?.content || ""
@@ -1993,15 +2019,65 @@ function ProjectForm({
                       color: "var(--color-ink)",
                     }}
                   >
-                    + Template: {preset.name}
+                    + {preset.name}
                   </button>
                 ))}
+                {form.sections.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (
+                        confirm(
+                          "Kosongkan semua section studi kasus dan aktifkan mode galeri visual?",
+                        )
+                      ) {
+                        setForm((prev) => ({ ...prev, sections: [] }))
+                      }
+                    }}
+                    className="text-xs font-mono px-3 py-1.5 border border-red-200 text-red-700 bg-red-50 hover:bg-red-100 rounded transition-colors cursor-pointer"
+                  >
+                    ✕ Kosongkan Section (Mode Visual)
+                  </button>
+                )}
               </div>
             </div>
 
             {/* Dynamic Sections List */}
-            <div className="flex flex-col gap-6">
-              {form.sections.map((sec, idx) => (
+            {form.sections.length === 0 ? (
+              <div
+                className="p-8 border border-dashed rounded-md text-center flex flex-col items-center justify-center gap-3 bg-white"
+                style={{ borderColor: "var(--color-border)" }}
+              >
+                <span className="text-2xl">✨</span>
+                <p
+                  className="font-sans font-bold text-sm"
+                  style={{ color: "var(--color-ink)" }}
+                >
+                  Mode Portofolio Visual Bersih (Visual-First) Aktif
+                </p>
+                <p
+                  className="text-xs max-w-md leading-relaxed"
+                  style={{ color: "var(--color-muted)" }}
+                >
+                  Karya ini tidak memiliki section studi kasus teknis. Halaman
+                  publik akan langsung menampilkan foto cover, deskripsi
+                  singkat, serta galeri visual secara clean dan elegan.
+                </p>
+                <button
+                  type="button"
+                  onClick={handleAddSection}
+                  className="mt-2 px-3 py-1.5 border rounded text-xs font-mono tracking-wider uppercase cursor-pointer hover:bg-black/5"
+                  style={{
+                    borderColor: "var(--color-border)",
+                    color: "var(--color-ink)",
+                  }}
+                >
+                  + Tambah Section Manual
+                </button>
+              </div>
+            ) : (
+              <div className="flex flex-col gap-6">
+                {form.sections.map((sec, idx) => (
                 <div
                   key={idx}
                   className="p-5 border rounded-md flex flex-col gap-3 relative"
@@ -2131,6 +2207,7 @@ function ProjectForm({
                 </div>
               ))}
             </div>
+          )}
 
             <button
               type="button"
@@ -2332,16 +2409,24 @@ function ProjectForm({
                       const files = Array.from(e.target.files || [])
                       if (files.length === 0) return
                       setUploadingGallery(true)
-                      const uploadedUrls: string[] = []
-                      for (const file of files) {
-                        const { url } = await uploadImage(file)
-                        if (url) uploadedUrls.push(url)
+                      const newItems: GalleryItem[] = []
+                      for (let i = 0; i < files.length; i++) {
+                        const { url } = await uploadImage(files[i])
+                        if (url) {
+                          newItems.push({
+                            id: `img-${Date.now()}-${i}`,
+                            image_url: url,
+                            title: "",
+                            caption: "",
+                            sort_order: form.gallery.length + i + 1,
+                          })
+                        }
                       }
                       setUploadingGallery(false)
-                      if (uploadedUrls.length > 0) {
+                      if (newItems.length > 0) {
                         setForm((prev) => ({
                           ...prev,
-                          gallery: [...prev.gallery, ...uploadedUrls],
+                          gallery: [...prev.gallery, ...newItems],
                         }))
                       }
                       e.target.value = ""
@@ -2366,9 +2451,9 @@ function ProjectForm({
                     >
                       <span className="text-base">⠿</span>
                       <span>
-                        <strong>Tips Urutan Galeri:</strong> Tarik &amp; geser
-                        gambar atau klik tombol <strong>◀ ▶</strong> untuk
-                        mengatur urutan foto yang tampil di detail karya.
+                        <strong>Tips Galeri Visual:</strong> Tarik &amp; geser
+                        gambar untuk mengubah urutan. Berikan judul dan
+                        keterangan 1 kalimat (opsional) pada setiap visual karya.
                       </span>
                     </span>
                     <span className="font-semibold px-2 py-0.5 rounded bg-gray-200 text-gray-800 shrink-0">
@@ -2376,15 +2461,16 @@ function ProjectForm({
                     </span>
                   </div>
 
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3.5 mt-1">
-                    {form.gallery.map((imgUrl, idx) => {
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-1">
+                    {form.gallery.map((item, idx) => {
                       const isFirst = idx === 0
                       const isLast = idx === form.gallery.length - 1
+                      const imgUrl = item.image_url
                       const isCover = form.cover_url === imgUrl
 
                       return (
                         <div
-                          key={idx}
+                          key={item.id || idx}
                           draggable
                           onDragStart={(e) => handleGalleryDragStart(e, idx)}
                           onDragEnter={(e) => handleGalleryDragEnter(e, idx)}
@@ -2402,35 +2488,88 @@ function ProjectForm({
                             backgroundColor: "#FFFFFF",
                           }}
                         >
-                          {/* Image Box (Object Contain so full screenshot is visible) */}
-                          <div className="w-full h-36 bg-gray-50 flex items-center justify-center p-1.5 overflow-hidden">
+                          {/* Image Box */}
+                          <div className="w-full h-40 bg-gray-50 flex items-center justify-center p-2 overflow-hidden relative">
                             <img
                               src={imgUrl}
                               alt={`Galeri ${idx + 1}`}
                               className="w-full h-full object-contain pointer-events-none drop-shadow-xs"
                             />
-                          </div>
 
-                          {/* Top Badges & Remove */}
-                          <div className="absolute top-2 left-2 flex items-center gap-1 pointer-events-none">
-                            <span className="font-mono text-[10px] font-bold px-1.5 py-0.5 rounded bg-black/75 text-white shadow-xs">
-                              #{idx + 1}
-                            </span>
-                            {isCover && (
-                              <span className="font-mono text-[9px] font-bold px-1.5 py-0.5 rounded bg-amber-500 text-white shadow-xs">
-                                Cover
+                            {/* Top Badges & Remove */}
+                            <div className="absolute top-2 left-2 flex items-center gap-1 pointer-events-none">
+                              <span className="font-mono text-[10px] font-bold px-1.5 py-0.5 rounded bg-black/75 text-white shadow-xs">
+                                #{idx + 1}
                               </span>
-                            )}
+                              {isCover && (
+                                <span className="font-mono text-[9px] font-bold px-1.5 py-0.5 rounded bg-amber-500 text-white shadow-xs">
+                                  Cover
+                                </span>
+                              )}
+                            </div>
+
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveGalleryImage(idx)}
+                              className="absolute top-2 right-2 bg-red-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs opacity-80 hover:opacity-100 transition-opacity cursor-pointer shadow-md"
+                              title="Hapus dari galeri"
+                            >
+                              ×
+                            </button>
                           </div>
 
-                          <button
-                            type="button"
-                            onClick={() => handleRemoveGalleryImage(idx)}
-                            className="absolute top-2 right-2 bg-red-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs opacity-80 hover:opacity-100 transition-opacity cursor-pointer shadow-md"
-                            title="Hapus dari galeri"
+                          {/* Editable Title & Caption Inputs */}
+                          <div
+                            className="p-2.5 bg-[#FAFAFA] flex flex-col gap-1.5 border-t"
+                            style={{ borderColor: "var(--color-border-light)" }}
                           >
-                            ×
-                          </button>
+                            <div>
+                              <label className="font-mono text-[9px] uppercase tracking-wider text-gray-500 font-semibold block mb-0.5">
+                                Judul Visual (Opsional):
+                              </label>
+                              <input
+                                type="text"
+                                placeholder="Contoh: Poster Feed Promosi"
+                                value={item.title || ""}
+                                onChange={(e) =>
+                                  handleUpdateGalleryItem(
+                                    idx,
+                                    "title",
+                                    e.target.value,
+                                  )
+                                }
+                                className="w-full px-2 py-1 text-xs border rounded outline-none"
+                                style={{
+                                  borderColor: "var(--color-border)",
+                                  backgroundColor: "#FFFFFF",
+                                  color: "var(--color-ink)",
+                                }}
+                              />
+                            </div>
+                            <div>
+                              <label className="font-mono text-[9px] uppercase tracking-wider text-gray-500 font-semibold block mb-0.5">
+                                Keterangan Singkat (Maks 1 Kalimat):
+                              </label>
+                              <input
+                                type="text"
+                                placeholder="Contoh: Tata letak feed terstruktur..."
+                                value={item.caption || ""}
+                                onChange={(e) =>
+                                  handleUpdateGalleryItem(
+                                    idx,
+                                    "caption",
+                                    e.target.value,
+                                  )
+                                }
+                                className="w-full px-2 py-1 text-xs border rounded outline-none"
+                                style={{
+                                  borderColor: "var(--color-border)",
+                                  backgroundColor: "#FFFFFF",
+                                  color: "var(--color-ink)",
+                                }}
+                              />
+                            </div>
+                          </div>
 
                           {/* Bottom Action Bar (Move Left / Set As Cover / Move Right) */}
                           <div

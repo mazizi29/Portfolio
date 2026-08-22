@@ -163,111 +163,148 @@ export const projects: Project[] = [
   },
   {
     id: "04",
-    slug: "layar-putih",
-    title: "Layar Putih Creative Studio",
-    subtitle: "Creative Studio & Visual Identity",
+    slug: "visual-identity-showcase",
+    title: "Visual Identity & Brand Assets",
+    subtitle: "Simor, Inisiatif Kita & Brand Systems",
     description:
-      "Perancangan identitas visual, panduan merek, dan landing page untuk studio kreatif yang bergerak di bidang produksi foto dan video komersial.",
+      "Eksplorasi sistem identitas visual, logo guidelines, dan mockup aplikasi merek untuk produk kemasan dan inisiatif kreatif.",
     category: "Creative & Multimedia",
-    subcategory: "Branding & Visual Identity",
-    year: "2023",
-    role: "Brand Design · Art Direction · Web Design",
-    tools: ["Figma", "Illustrator", "Photoshop"],
-    tags: ["Branding", "Graphic Design", "Photography", "Web"],
+    subcategory: "Visual Identity & Logo",
+    year: "2024",
+    role: "Brand Designer · Art Direction",
+    tools: ["Adobe Illustrator", "Photoshop", "Figma"],
+    tags: ["Branding", "Visual Identity", "Logo Design", "Packaging"],
     status: "published",
     featured: true,
     cover_url:
       "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1200&h=800&fit=crop&auto=format",
     gallery: [
-      "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1200&h=800&fit=crop&auto=format",
-      "https://images.unsplash.com/photo-1600132806370-bf17e65e942f?w=1200&h=800&fit=crop&auto=format",
+      {
+        id: "g1",
+        image_url:
+          "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1200&h=800&fit=crop&auto=format",
+        title: "Stationery & Brand Guidelines Set",
+        caption:
+          "Penerapan elemen visual pada kartu nama, kop surat, dan merchandise resmi.",
+      },
+      {
+        id: "g2",
+        image_url:
+          "https://images.unsplash.com/photo-1600132806370-bf17e65e942f?w=1200&h=800&fit=crop&auto=format",
+        title: "Simor Herbal Product Packaging",
+        caption:
+          "Desain label botol dan kemasan sachet minuman herbal dengan aksen warna botani.",
+      },
+      {
+        id: "g3",
+        image_url:
+          "https://images.unsplash.com/photo-1626785774573-4b799315345d?w=1200&h=800&fit=crop&auto=format",
+        title: "Logo Construction Grid",
+        caption:
+          "Ketentuan proporsi geometri, safe margin, dan palet warna primer.",
+      },
+      {
+        id: "g4",
+        image_url:
+          "https://images.unsplash.com/photo-1542744094-3a31f272c490?w=1200&h=800&fit=crop&auto=format",
+        title: "Corporate Identity Suite",
+        caption: "",
+      },
     ],
-    overview:
-      "Perancangan sistem identitas visual Layar Putih mulai dari logo, pemilihan tipografi, palet warna, hingga tata letak portofolio karya.",
-    problem:
-      "Studio membutuhkan identitas visual yang solid dan konsisten untuk meningkatkan impresi profesional di mata klien potensial.",
-    result:
-      "Menghasilkan panduan merek komprehensif serta materi promosi digital yang digunakan aktif di berbagai kanal media.",
-    sections: [
-      {
-        id: "01",
-        label: "Creative Brief",
-        sublabel: "Konsep & Visi Studio",
-        content:
-          "Perancangan sistem identitas visual Layar Putih mulai dari logo, pemilihan tipografi, palet warna, hingga tata letak portofolio karya yang mencerminkan kesederhanaan dan ketajaman sinematik.",
-      },
-      {
-        id: "02",
-        label: "Visual Exploration",
-        sublabel: "Eksplorasi Visual & Filosofi",
-        content:
-          "- Pengembangan logo minimalis berbasis geometri canvas bersih (layar putih)\n- Pemilihan palet warna netral (Ink, Paper, Charcoal) dengan aksen kontras yang elegan\n- Desain template presentasi proposal klien dan kartu nama cetak premium",
-      },
-      {
-        id: "03",
-        label: "Deliverables & Application",
-        sublabel: "Hasil Akhir & Penerapan",
-        content:
-          "- Brand guidelines book lengkap berisi aturan tipografi dan pengaplikasian logo\n- Meningkatkan reputasi dan daya tarik studio pada berbagai penawaran proyek komersial",
-      },
-    ],
+    sections: [],
     github_url: "",
     live_url: "",
     instagram_url: "https://instagram.com",
     drive_url: "",
-    updated_at: "2023-12-10",
+    updated_at: "2024-11-20",
   },
   {
     id: "05",
-    slug: "commercial-cinematic-reel",
-    title: "Layar Putih Cinematic Reel",
-    subtitle: "Commercial Videography & Showreel Production",
+    slug: "social-media-campaign",
+    title: "Social Media & Marketing Visuals",
+    subtitle: "Curated Feeds, Editorial Carousels & Event Posters",
     description:
-      "Produksi video showreel komersial yang menampilkan kompilasi karya sinematografi, color grading, dan storytelling visual untuk brand komersial.",
+      "Perancangan konten media sosial komprehensif mulai dari feed Instagram terstruktur, carousel edukasi, hingga materi publikasi event.",
     category: "Creative & Multimedia",
-    subcategory: "Commercial Videography",
+    subcategory: "Social Media & Content Design",
     year: "2024",
-    role: "Director · Cinematographer · Colorist",
+    role: "Graphic Designer · Content Strategist",
+    tools: ["Adobe Photoshop", "Illustrator", "Canva Pro"],
+    tags: ["Social Media", "Graphic Design", "Content Creation", "Feeds"],
+    status: "published",
+    featured: true,
+    cover_url:
+      "https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=1200&h=800&fit=crop&auto=format",
+    gallery: [
+      {
+        id: "sm1",
+        image_url:
+          "https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=1200&h=800&fit=crop&auto=format",
+        title: "Ruang 412 Instagram Feed System",
+        caption:
+          "Tata letak feed terstruktur dan konsisten untuk meningkatkan engagement audiens muda.",
+      },
+      {
+        id: "sm2",
+        image_url:
+          "https://images.unsplash.com/photo-1611162618071-b39a2ec055fb?w=1200&h=800&fit=crop&auto=format",
+        title: "Akademi Rasa Editorial Carousel",
+        caption:
+          "Format carousel edukatif dengan tipografi elegan untuk audiens kuliner gastronomi.",
+      },
+      {
+        id: "sm3",
+        image_url:
+          "https://images.unsplash.com/photo-1557804506-669a67965ba0?w=1200&h=800&fit=crop&auto=format",
+        title: "Matasba Event Campaign Poster",
+        caption:
+          "Poster publikasi masa ta'aruf santri baru dengan komposisi visual dinamis dan tegas.",
+      },
+    ],
+    sections: [],
+    github_url: "",
+    live_url: "",
+    instagram_url: "https://instagram.com",
+    drive_url: "",
+    updated_at: "2024-10-15",
+  },
+  {
+    id: "06",
+    slug: "commercial-cinematic-reel",
+    title: "Cinematic Reel & Visual Stories",
+    subtitle: "Short Movie, Event Documentation & Motion Visuals",
+    description:
+      "Kompilasi video dokumentasi, short trailer, dan bumper motion graphic untuk kebutuhan publikasi audio visual modern.",
+    category: "Creative & Multimedia",
+    subcategory: "Video Production & Editing",
+    year: "2024",
+    role: "Videographer · Editor",
     tools: ["Sony FX3", "Premiere Pro", "DaVinci Resolve", "After Effects"],
-    tags: ["Videography", "Cinematography", "Color Grading", "Editing"],
+    tags: ["Videography", "Cinematography", "Color Grading", "Video Editing"],
     status: "published",
     featured: true,
     cover_url:
       "https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?w=1200&h=800&fit=crop&auto=format",
     video_url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
     gallery: [
-      "https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?w=1200&h=800&fit=crop&auto=format",
-      "https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?w=1200&h=800&fit=crop&auto=format",
-    ],
-    overview:
-      "Kompilasi showreel video komersial berdurasi 90 detik yang mendemonstrasikan kepekaan komposisi, pencahayaan alami, dan color grading sinematik.",
-    problem:
-      "Memerlukan showreel yang padat dan berirama dinamis untuk menarik perhatian klien korporat dalam 15 detik pertama penayangan.",
-    result:
-      "Menghasilkan video dengan transisi ritmis selaras beat musik dan grading warna filmic yang konsisten di seluruh adegan.",
-    sections: [
       {
-        id: "01",
-        label: "Story & Concept",
-        sublabel: "Konsep & Arah Visual",
-        content:
-          "Kompilasi showreel video komersial berdurasi 90 detik yang mendemonstrasikan kepekaan komposisi, pencahayaan alami, dan color grading sinematik.",
+        id: "v1",
+        image_url:
+          "https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?w=1200&h=800&fit=crop&auto=format",
+        title: "Short Movie Stills & Lighting",
+        caption:
+          "Pemanfaatan pencahayaan natural dan framing sinematik pada sesi pengambilan gambar.",
       },
       {
-        id: "02",
-        label: "Production & Shooting",
-        sublabel: "Teknik Sinematografi & Lighting",
-        content:
-          "- Pengambilan gambar B-roll produk dengan pergerakan gimbal halus\n- Pemanfaatan teknik lighting chiaroscuro untuk menonjolkan dimensi subjek\n- Perekaman audio atmosfer dan foley untuk sound design yang imersif",
-      },
-      {
-        id: "03",
-        label: "Post-Production & Grading",
-        sublabel: "Editing & Color Grading",
-        content:
-          "- Color grading presisi di DaVinci Resolve dengan kurva kontras filmik\n- Pacing editing cepat dan dinamis yang menjaga retensi penonton hingga akhir",
+        id: "v2",
+        image_url:
+          "https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?w=1200&h=800&fit=crop&auto=format",
+        title: "Event Documentation Highlights",
+        caption:
+          "Perekaman momen krusial panggung dan atmosfer interaksi audiens secara dinamis.",
       },
     ],
+    sections: [],
     github_url: "",
     live_url: "",
     instagram_url: "https://instagram.com",

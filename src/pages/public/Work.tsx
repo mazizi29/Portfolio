@@ -206,7 +206,13 @@ export default function Work() {
   )
 }
 
-function ProjectCard({ project, index }: { project: Project index: number }) {
+function ProjectCard({
+  project,
+  index,
+}: {
+  project: Project
+  index: number
+}) {
   const displayId = index < 9 ? `0${index + 1}` : `${index + 1}`
   const projectCover = project.cover_url || ""
   const canonicalCategory = normalizeCategory(project.category)

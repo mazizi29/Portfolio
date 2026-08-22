@@ -850,7 +850,7 @@ export default function Home() {
   )
 }
 
-function ProjectRow({ project, index }: { project: any index: number }) {
+function ProjectRow({ project, index }: { project: any; index: number }) {
   const tags = Array.isArray(project.tags)
     ? project.tags
     : typeof project.tags === "string"

@@ -593,7 +593,7 @@ export default function About() {
   )
 }
 
-function InfoRow({ label, value }: { label: string value: string }) {
+function InfoRow({ label, value }: { label: string; value: string }) {
   return (
     <div
       className="flex items-center gap-4 py-3.5 border-t"
