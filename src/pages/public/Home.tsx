@@ -4,6 +4,7 @@ import PublicLayout from '@/layouts/public/PublicLayout'
 import { getSupabaseClient } from '@/lib/supabase'
 import { projects as mockProjects, experience as mockExperience, skills as mockSkills } from '@/data/mockData'
 import { sortExperiencesChronological } from '@/pages/admin/Experience'
+import { normalizeCategory, getProjectSubcategory } from '@/types/project'
 
 const supabase = getSupabaseClient()
 const HERO_PHOTO_DEFAULT = '/pas_foto.jpg'
@@ -583,6 +584,8 @@ function ProjectRow({ project, index }: { project: any; index: number }) {
     (typeof project.tags === 'string' ? project.tags.split(',') : [])
 
   const projectCover = project.cover_url || project.cover || ''
+  const canonicalCategory = normalizeCategory(project.category)
+  const subcategory = getProjectSubcategory(project)
 
   return (
     <Link
@@ -615,17 +618,39 @@ function ProjectRow({ project, index }: { project: any; index: number }) {
       </div>
 
       <div className="flex-1 min-w-0">
+        <div className="flex flex-wrap items-center gap-1.5 mb-1.5">
+          <span
+            className="font-mono text-[10px] uppercase font-semibold px-2 py-0.5 border rounded"
+            style={{ borderColor: 'var(--color-border)', color: 'var(--color-ink)', backgroundColor: '#FFFFFF' }}
+          >
+            {canonicalCategory}
+          </span>
+          {subcategory && (
+            <span
+              className="font-mono text-[10px] font-medium px-2 py-0.5 rounded"
+              style={{ backgroundColor: '#EAEAE6', color: 'var(--color-ink)' }}
+            >
+              {subcategory}
+            </span>
+          )}
+          {project.video_url && (
+            <span className="font-mono text-[10px] text-red-600 font-bold px-1.5 py-0.5 bg-red-50 rounded">
+              ▶ Video
+            </span>
+          )}
+        </div>
+
         <h3
-          className="font-sans font-bold text-lg sm:text-xl mb-1"
+          className="font-sans font-bold text-lg sm:text-xl mb-1 group-hover:text-black transition-colors"
           style={{ color: 'var(--color-ink)', letterSpacing: '-0.02em' }}
         >
           {project.title}
         </h3>
         <p className="text-sm mb-3 line-clamp-1" style={{ color: 'var(--color-muted)', fontFamily: 'var(--font-sans)' }}>
-          {project.subtitle}
+          {project.subtitle || project.description}
         </p>
         <div className="flex flex-wrap gap-1.5">
-          {tags.slice(0, 3).map((tag: string) => (
+          {tags.slice(0, 4).map((tag: string) => (
             <span
               key={tag}
               className="font-mono text-xs px-2 py-0.5 border"

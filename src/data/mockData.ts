@@ -1,15 +1,18 @@
-export const projects = [
+import type { Project } from '@/types/project'
+
+export const projects: Project[] = [
   {
     id: '01',
     slug: 'nataArtha',
     title: 'NataArtha',
     subtitle: 'Personal Finance Management App',
     description: 'Aplikasi pencatatan keuangan pribadi yang dirancang untuk membantu mahasiswa dan profesional muda mengelola anggaran bulanan dengan visualisasi arus kas yang intuitif.',
-    category: 'Mobile App',
+    category: 'Engineering & Tech',
+    subcategory: 'Mobile Application',
     year: '2024',
     role: 'UI/UX Design · Front-End Development',
     tools: ['Figma', 'React Native', 'Firebase'],
-    tags: ['UI/UX', 'React Native', 'Firebase'],
+    tags: ['UI/UX', 'React Native', 'Firebase', 'Mobile App'],
     status: 'published',
     featured: true,
     cover_url: 'https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=1200&h=800&fit=crop&auto=format',
@@ -20,8 +23,29 @@ export const projects = [
     overview: 'NataArtha dikembangkan untuk mengatasi kebiasaan pencatatan pengeluaran yang tidak konsisten di kalangan mahasiswa dan fresh graduate dengan pendekatan antarmuka yang bersih dan interaktif.',
     problem: 'Banyak aplikasi keuangan terasa terlalu rumit atau justru terlalu minim fitur analisis. Diperlukan solusi tengah yang memudahkan input harian sekaligus menyajikan ringkasan visual yang mudah dipahami.',
     result: 'Menghadirkan alur onboarding dan pencatatan transaksi yang ringkas, menghasilkan prototipe interaktif dengan kepuasan navigasi yang baik pada pengujian pengguna.',
+    sections: [
+      {
+        id: '01',
+        label: 'Overview',
+        sublabel: 'Gambaran Umum & Tujuan',
+        content: 'NataArtha dikembangkan untuk mengatasi kebiasaan pencatatan pengeluaran yang tidak konsisten di kalangan mahasiswa dan fresh graduate dengan pendekatan antarmuka yang bersih dan interaktif.'
+      },
+      {
+        id: '02',
+        label: 'Problem & Architecture',
+        sublabel: 'Tantangan & Arsitektur Teknis',
+        content: '- Pengguna sering lupa mencatat pengeluaran karena alur input terlalu rumit\n- Visualisasi grafik keuangan yang membingungkan bagi pemula\n- Integrasi database lokal dan sinkronisasi cloud real-time Firebase'
+      },
+      {
+        id: '03',
+        label: 'Result & Impact',
+        sublabel: 'Hasil, Metrik & Solusi',
+        content: '- Berhasil mereduksi waktu input transaksi harian hingga kurang dari 15 detik\n- Prototipe interaktif diuji pada 10 pengguna dengan tingkat kepuasan di atas 90%\n- Struktur kode front-end modular siap dikembangkan ke skala produksi'
+      }
+    ],
     github_url: 'https://github.com/mazizi29',
     live_url: '',
+    figma_url: 'https://figma.com/@mazizi29',
     updated_at: '2024-11-15',
   },
   {
@@ -30,7 +54,8 @@ export const projects = [
     title: 'Interactive Javanese Invitation',
     subtitle: 'Interactive Cultural Digital Experience',
     description: 'Eksplorasi undangan digital interaktif yang memadukan ornamen visual budaya Jawa dengan teknik animasi web dan transisi modern.',
-    category: 'Web Experience',
+    category: 'UI/UX & Product Design',
+    subcategory: 'Web Experience & UI Design',
     year: '2024',
     role: 'UI Design · Frontend Development',
     tools: ['Figma', 'HTML', 'CSS', 'JavaScript', 'GSAP'],
@@ -38,12 +63,35 @@ export const projects = [
     status: 'published',
     featured: true,
     cover_url: 'https://images.unsplash.com/photo-1518998053901-5348d3961a04?w=1200&h=800&fit=crop&auto=format',
-    gallery: [],
+    gallery: [
+      'https://images.unsplash.com/photo-1518998053901-5348d3961a04?w=1200&h=800&fit=crop&auto=format'
+    ],
     overview: 'Proyek eksplorasi front-end yang menggabungkan estetika tipografi dan motif budaya tradisional ke dalam media web interaktif.',
     problem: 'Undangan digital sering kali menggunakan template kaku dengan animasi yang generik. Proyek ini bertujuan menciptakan pengalaman visual yang lebih berkarakter dan dinamis.',
     result: 'Berhasil mengimplementasikan interaksi berbasis scroll (scroll-triggered animations) yang responsif dan ringan diakses dari berbagai perangkat.',
+    sections: [
+      {
+        id: '01',
+        label: 'Overview',
+        sublabel: 'Ringkasan Studi Kasus',
+        content: 'Proyek eksplorasi front-end yang menggabungkan estetika tipografi dan motif budaya tradisional ke dalam media web interaktif.'
+      },
+      {
+        id: '02',
+        label: 'Design Process',
+        sublabel: 'Eksplorasi Visual & Tipografi',
+        content: '- Perancangan wireframe bertema editorial Jawa di Figma\n- Implementasi animasi GSAP ScrollTrigger yang halus dan optimal di mobile\n- Optimasi aset vektor aksara Jawa agar bobot halaman tetap di bawah 1.5MB'
+      },
+      {
+        id: '03',
+        label: 'Final Solution',
+        sublabel: 'Pengalaman Interaktif & Hasil',
+        content: '- Menghasilkan pengalaman navigasi yang imersif dan berkarakter budaya kuat\n- Skor performa Lighthouse mencapai 95+ pada kategori Accessibility & Best Practices'
+      }
+    ],
     github_url: 'https://github.com/mazizi29',
     live_url: '',
+    figma_url: 'https://figma.com/@mazizi29',
     updated_at: '2024-09-03',
   },
   {
@@ -52,11 +100,12 @@ export const projects = [
     title: 'Digital Forensic Automation',
     subtitle: 'Digital Forensic Investigation System',
     description: 'Sistem otomasi skrip untuk membantu alur analisis bukti digital, ekstraksi artefak, dan dokumentasi chain-of-custody dalam lingkungan praktikum forensik digital.',
-    category: 'Systems',
+    category: 'Engineering & Tech',
+    subcategory: 'Digital Forensics & Systems',
     year: '2024',
     role: 'Backend Development · System Design',
     tools: ['Python', 'Automation', 'Digital Forensics'],
-    tags: ['Python', 'Automation', 'Digital Forensics'],
+    tags: ['Python', 'Automation', 'Digital Forensics', 'Systems'],
     status: 'published',
     featured: true,
     cover_url: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=1200&h=800&fit=crop&auto=format',
@@ -64,6 +113,26 @@ export const projects = [
     overview: 'Toolkit berbasis Python untuk mengotomasi tahapan verifikasi hash integritas berkas dan pengelompokan artefak digital secara berurutan.',
     problem: 'Proses pemeriksaan integritas bukti secara manual memerlukan waktu dan rentan terhadap ketidakkonsistenan pencatatan log verifikasi.',
     result: 'Menghasilkan alur kerja modular yang mempermudah ekstraksi metadata berkas dan pembuatan laporan audit trail digital terstruktur.',
+    sections: [
+      {
+        id: '01',
+        label: 'Overview',
+        sublabel: 'Gambaran Umum Sistem',
+        content: 'Toolkit berbasis Python untuk mengotomasi tahapan verifikasi hash integritas berkas dan pengelompokan artefak digital secara berurutan.'
+      },
+      {
+        id: '02',
+        label: 'Problem & Architecture',
+        sublabel: 'Tantangan Investigasi & Otomasi',
+        content: '- Pemeriksaan integritas bukti manual memakan waktu berjam-jam\n- Risiko inkonsistensi penulisan hash (MD5, SHA-256) pada chain-of-custody\n- Kebutuhan ekstraksi metadata berkas yang aman tanpa merusak timestamps asli'
+      },
+      {
+        id: '03',
+        label: 'Results & Impact',
+        sublabel: 'Hasil & Solusi',
+        content: '- Mampu memproses dan memvalidasi ratusan berkas bukti dalam hitungan detik\n- Menghasilkan laporan audit trail terstruktur dalam format JSON dan PDF secara otomatis'
+      }
+    ],
     github_url: 'https://github.com/mazizi29',
     live_url: '',
     updated_at: '2024-07-22',
@@ -74,7 +143,8 @@ export const projects = [
     title: 'Layar Putih Creative Studio',
     subtitle: 'Creative Studio & Visual Identity',
     description: 'Perancangan identitas visual, panduan merek, dan landing page untuk studio kreatif yang bergerak di bidang produksi foto dan video komersial.',
-    category: 'Branding',
+    category: 'Creative & Multimedia',
+    subcategory: 'Branding & Visual Identity',
     year: '2023',
     role: 'Brand Design · Art Direction · Web Design',
     tools: ['Figma', 'Illustrator', 'Photoshop'],
@@ -82,14 +152,87 @@ export const projects = [
     status: 'published',
     featured: true,
     cover_url: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1200&h=800&fit=crop&auto=format',
-    gallery: [],
+    gallery: [
+      'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1200&h=800&fit=crop&auto=format',
+      'https://images.unsplash.com/photo-1600132806370-bf17e65e942f?w=1200&h=800&fit=crop&auto=format',
+    ],
     overview: 'Perancangan sistem identitas visual Layar Putih mulai dari logo, pemilihan tipografi, palet warna, hingga tata letak portofolio karya.',
     problem: 'Studio membutuhkan identitas visual yang solid dan konsisten untuk meningkatkan impresi profesional di mata klien potensial.',
     result: 'Menghasilkan panduan merek komprehensif serta materi promosi digital yang digunakan aktif di berbagai kanal media.',
+    sections: [
+      {
+        id: '01',
+        label: 'Creative Brief',
+        sublabel: 'Konsep & Visi Studio',
+        content: 'Perancangan sistem identitas visual Layar Putih mulai dari logo, pemilihan tipografi, palet warna, hingga tata letak portofolio karya yang mencerminkan kesederhanaan dan ketajaman sinematik.'
+      },
+      {
+        id: '02',
+        label: 'Visual Exploration',
+        sublabel: 'Eksplorasi Visual & Filosofi',
+        content: '- Pengembangan logo minimalis berbasis geometri canvas bersih (layar putih)\n- Pemilihan palet warna netral (Ink, Paper, Charcoal) dengan aksen kontras yang elegan\n- Desain template presentasi proposal klien dan kartu nama cetak premium'
+      },
+      {
+        id: '03',
+        label: 'Deliverables & Application',
+        sublabel: 'Hasil Akhir & Penerapan',
+        content: '- Brand guidelines book lengkap berisi aturan tipografi dan pengaplikasian logo\n- Meningkatkan reputasi dan daya tarik studio pada berbagai penawaran proyek komersial'
+      }
+    ],
     github_url: '',
     live_url: '',
+    instagram_url: 'https://instagram.com',
+    drive_url: '',
     updated_at: '2023-12-10',
   },
+  {
+    id: '05',
+    slug: 'commercial-cinematic-reel',
+    title: 'Layar Putih Cinematic Reel',
+    subtitle: 'Commercial Videography & Showreel Production',
+    description: 'Produksi video showreel komersial yang menampilkan kompilasi karya sinematografi, color grading, dan storytelling visual untuk brand komersial.',
+    category: 'Creative & Multimedia',
+    subcategory: 'Commercial Videography',
+    year: '2024',
+    role: 'Director · Cinematographer · Colorist',
+    tools: ['Sony FX3', 'Premiere Pro', 'DaVinci Resolve', 'After Effects'],
+    tags: ['Videography', 'Cinematography', 'Color Grading', 'Editing'],
+    status: 'published',
+    featured: true,
+    cover_url: 'https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?w=1200&h=800&fit=crop&auto=format',
+    video_url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+    gallery: [
+      'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?w=1200&h=800&fit=crop&auto=format',
+      'https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?w=1200&h=800&fit=crop&auto=format'
+    ],
+    overview: 'Kompilasi showreel video komersial berdurasi 90 detik yang mendemonstrasikan kepekaan komposisi, pencahayaan alami, dan color grading sinematik.',
+    problem: 'Memerlukan showreel yang padat dan berirama dinamis untuk menarik perhatian klien korporat dalam 15 detik pertama penayangan.',
+    result: 'Menghasilkan video dengan transisi ritmis selaras beat musik dan grading warna filmic yang konsisten di seluruh adegan.',
+    sections: [
+      {
+        id: '01',
+        label: 'Story & Concept',
+        sublabel: 'Konsep & Arah Visual',
+        content: 'Kompilasi showreel video komersial berdurasi 90 detik yang mendemonstrasikan kepekaan komposisi, pencahayaan alami, dan color grading sinematik.'
+      },
+      {
+        id: '02',
+        label: 'Production & Shooting',
+        sublabel: 'Teknik Sinematografi & Lighting',
+        content: '- Pengambilan gambar B-roll produk dengan pergerakan gimbal halus\n- Pemanfaatan teknik lighting chiaroscuro untuk menonjolkan dimensi subjek\n- Perekaman audio atmosfer dan foley untuk sound design yang imersif'
+      },
+      {
+        id: '03',
+        label: 'Post-Production & Grading',
+        sublabel: 'Editing & Color Grading',
+        content: '- Color grading presisi di DaVinci Resolve dengan kurva kontras filmik\n- Pacing editing cepat dan dinamis yang menjaga retensi penonton hingga akhir'
+      }
+    ],
+    github_url: '',
+    live_url: '',
+    instagram_url: 'https://instagram.com',
+    updated_at: '2024-10-01',
+  }
 ];
 
 export const experience = [
