@@ -322,12 +322,14 @@ export const projects: Project[] = [
     ],
     status: "published",
     featured: false,
-    cover_url: "/fotografi/stillness-in-motion.webp",
+    cover_url:
+      "https://pbezjyedxiydebfuxclj.supabase.co/storage/v1/object/public/media/1787539497504-k2hhlw1.webp",
     gallery: [
       {
         id: "gallery-photo-1",
         project_id: "bbef649c-3d45-4b03-87ea-05e6082c2ad4",
-        image_url: "/fotografi/stillness-in-motion.webp",
+        image_url:
+          "https://pbezjyedxiydebfuxclj.supabase.co/storage/v1/object/public/media/1787539497504-k2hhlw1.webp",
         title: "The Stillness in Motion (Ketenangan dalam Dinamika)",
         caption:
           "Eksplorasi teknik slow shutter yang membekukan kekhusyukan seorang santri mendaras Al-Qur'an di tengah dinamika figur orang yang berlalu-lalang dengan efek motion blur.",
@@ -336,7 +338,8 @@ export const projects: Project[] = [
       {
         id: "gallery-photo-2",
         project_id: "bbef649c-3d45-4b03-87ea-05e6082c2ad4",
-        image_url: "/fotografi/halaqah-cahaya.webp",
+        image_url:
+          "https://pbezjyedxiydebfuxclj.supabase.co/storage/v1/object/public/media/1787539498567-lvofybt.webp",
         title: "Halaqah: Di Bawah Cahaya Pengetahuan",
         caption:
           "Komposisi simetris yang menangkap momen sorogan dan halaqah santri di depan jendela berarsitektur klasik dengan rim lighting alami yang elegan.",
@@ -345,7 +348,8 @@ export const projects: Project[] = [
       {
         id: "gallery-photo-3",
         project_id: "bbef649c-3d45-4b03-87ea-05e6082c2ad4",
-        image_url: "/fotografi/keadilan-ugm.webp",
+        image_url:
+          "https://pbezjyedxiydebfuxclj.supabase.co/storage/v1/object/public/media/1787539499277-5htzm85.webp",
         title: "Keadilan dalam Bingkai: Wisuda FH UGM",
         caption:
           "Potret wisudawan dengan teknik foreground framing geometris yang mensejajarkan subjek dengan patung Dewi Keadilan di Fakultas Hukum UGM.",
@@ -354,7 +358,8 @@ export const projects: Project[] = [
       {
         id: "gallery-photo-4",
         project_id: "bbef649c-3d45-4b03-87ea-05e6082c2ad4",
-        image_url: "/fotografi/upacara-stage.webp",
+        image_url:
+          "https://pbezjyedxiydebfuxclj.supabase.co/storage/v1/object/public/media/1787539499591-q5ri7i0.webp",
         title: "Dokumentasi Khidmat: Upacara & Stage Performance",
         caption:
           "Dokumentasi panggung dengan high dynamic range yang menangkap momen khidmat penghormatan bendera di auditorium utama.",
@@ -363,7 +368,8 @@ export const projects: Project[] = [
       {
         id: "gallery-photo-5",
         project_id: "bbef649c-3d45-4b03-87ea-05e6082c2ad4",
-        image_url: "/fotografi/audiens-candid.webp",
+        image_url:
+          "https://pbezjyedxiydebfuxclj.supabase.co/storage/v1/object/public/media/1787539500241-fc5z3r1.webp",
         title: "Atmosfer & Spontanitas Audiens",
         caption:
           "Potret candid interaksi spontan audiens yang menangkap gelak tawa dan ekspresi hangat dengan tone warna warm earthy yang humanis.",
@@ -372,7 +378,8 @@ export const projects: Project[] = [
       {
         id: "gallery-photo-6",
         project_id: "bbef649c-3d45-4b03-87ea-05e6082c2ad4",
-        image_url: "/fotografi/detail-kelulusan.webp",
+        image_url:
+          "https://pbezjyedxiydebfuxclj.supabase.co/storage/v1/object/public/media/1787539501821-u20fequ.webp",
         title: "Detail & Simbol Prestasi Akademik",
         caption:
           "Bidikan detail still life dari buku tesis, selempang kelulusan, dan buket bunga segar dengan shallow depth of field yang tajam dan bertekstur.",
@@ -381,7 +388,8 @@ export const projects: Project[] = [
       {
         id: "gallery-photo-7",
         project_id: "bbef649c-3d45-4b03-87ea-05e6082c2ad4",
-        image_url: "/fotografi/tugu-jogja-night.webp",
+        image_url:
+          "https://pbezjyedxiydebfuxclj.supabase.co/storage/v1/object/public/media/1787539502906-d9cabni.webp",
         title: "Nadi Kota: Arus Waktu di Tugu Jogja",
         caption:
           "Fotografi malam hari memanfaatkan teknik long exposure untuk merekam jejak cahaya kendaraan yang mengitari monumen bersejarah Tugu Yogyakarta.",
@@ -390,7 +398,8 @@ export const projects: Project[] = [
       {
         id: "gallery-photo-8",
         project_id: "bbef649c-3d45-4b03-87ea-05e6082c2ad4",
-        image_url: "/fotografi/senja-rooftop.webp",
+        image_url:
+          "https://pbezjyedxiydebfuxclj.supabase.co/storage/v1/object/public/media/1787539503271-60bjxfa.webp",
         title: "Refleksi Senja di Tepian Langit",
         caption:
           "Potret siluet seseorang membaca di atas atap berlatarkan kubah masjid dan semburat awan keemasan waktu senja (golden hour).",
