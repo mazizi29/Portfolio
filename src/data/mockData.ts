@@ -322,12 +322,12 @@ export const projects: Project[] = [
     ],
     status: "published",
     featured: false,
-    cover_url: "/fotografi/stillness-in-motion.jpg",
+    cover_url: "/fotografi/stillness-in-motion.webp",
     gallery: [
       {
         id: "gallery-photo-1",
         project_id: "bbef649c-3d45-4b03-87ea-05e6082c2ad4",
-        image_url: "/fotografi/stillness-in-motion.jpg",
+        image_url: "/fotografi/stillness-in-motion.webp",
         title: "The Stillness in Motion (Ketenangan dalam Dinamika)",
         caption:
           "Eksplorasi teknik slow shutter yang membekukan kekhusyukan seorang santri mendaras Al-Qur'an di tengah dinamika figur orang yang berlalu-lalang dengan efek motion blur.",
@@ -336,7 +336,7 @@ export const projects: Project[] = [
       {
         id: "gallery-photo-2",
         project_id: "bbef649c-3d45-4b03-87ea-05e6082c2ad4",
-        image_url: "/fotografi/halaqah-cahaya.jpg",
+        image_url: "/fotografi/halaqah-cahaya.webp",
         title: "Halaqah: Di Bawah Cahaya Pengetahuan",
         caption:
           "Komposisi simetris yang menangkap momen sorogan dan halaqah santri di depan jendela berarsitektur klasik dengan rim lighting alami yang elegan.",
@@ -345,7 +345,7 @@ export const projects: Project[] = [
       {
         id: "gallery-photo-3",
         project_id: "bbef649c-3d45-4b03-87ea-05e6082c2ad4",
-        image_url: "/fotografi/keadilan-ugm.jpg",
+        image_url: "/fotografi/keadilan-ugm.webp",
         title: "Keadilan dalam Bingkai: Wisuda FH UGM",
         caption:
           "Potret wisudawan dengan teknik foreground framing geometris yang mensejajarkan subjek dengan patung Dewi Keadilan di Fakultas Hukum UGM.",
@@ -354,7 +354,7 @@ export const projects: Project[] = [
       {
         id: "gallery-photo-4",
         project_id: "bbef649c-3d45-4b03-87ea-05e6082c2ad4",
-        image_url: "/fotografi/upacara-stage.jpg",
+        image_url: "/fotografi/upacara-stage.webp",
         title: "Dokumentasi Khidmat: Upacara & Stage Performance",
         caption:
           "Dokumentasi panggung dengan high dynamic range yang menangkap momen khidmat penghormatan bendera di auditorium utama.",
@@ -363,7 +363,7 @@ export const projects: Project[] = [
       {
         id: "gallery-photo-5",
         project_id: "bbef649c-3d45-4b03-87ea-05e6082c2ad4",
-        image_url: "/fotografi/audiens-candid.jpg",
+        image_url: "/fotografi/audiens-candid.webp",
         title: "Atmosfer & Spontanitas Audiens",
         caption:
           "Potret candid interaksi spontan audiens yang menangkap gelak tawa dan ekspresi hangat dengan tone warna warm earthy yang humanis.",
@@ -372,7 +372,7 @@ export const projects: Project[] = [
       {
         id: "gallery-photo-6",
         project_id: "bbef649c-3d45-4b03-87ea-05e6082c2ad4",
-        image_url: "/fotografi/detail-kelulusan.jpg",
+        image_url: "/fotografi/detail-kelulusan.webp",
         title: "Detail & Simbol Prestasi Akademik",
         caption:
           "Bidikan detail still life dari buku tesis, selempang kelulusan, dan buket bunga segar dengan shallow depth of field yang tajam dan bertekstur.",
@@ -381,7 +381,7 @@ export const projects: Project[] = [
       {
         id: "gallery-photo-7",
         project_id: "bbef649c-3d45-4b03-87ea-05e6082c2ad4",
-        image_url: "/fotografi/tugu-jogja-night.jpg",
+        image_url: "/fotografi/tugu-jogja-night.webp",
         title: "Nadi Kota: Arus Waktu di Tugu Jogja",
         caption:
           "Fotografi malam hari memanfaatkan teknik long exposure untuk merekam jejak cahaya kendaraan yang mengitari monumen bersejarah Tugu Yogyakarta.",
@@ -390,7 +390,7 @@ export const projects: Project[] = [
       {
         id: "gallery-photo-8",
         project_id: "bbef649c-3d45-4b03-87ea-05e6082c2ad4",
-        image_url: "/fotografi/senja-rooftop.jpg",
+        image_url: "/fotografi/senja-rooftop.webp",
         title: "Refleksi Senja di Tepian Langit",
         caption:
           "Potret siluet seseorang membaca di atas atap berlatarkan kubah masjid dan semburat awan keemasan waktu senja (golden hour).",
