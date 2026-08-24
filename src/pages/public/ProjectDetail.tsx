@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react"
 import { useParams, Link, Navigate } from "react-router-dom"
 import PublicLayout from "@/layouts/public/PublicLayout"
+import { ProjectDetailSkeleton } from "@/components/common/Skeleton"
 import FormattedContent from "@/components/common/FormattedContent"
 import { getSupabaseClient } from "@/lib/supabase"
 import { projects as mockProjects } from "@/data/mockData"
@@ -238,26 +239,7 @@ export default function ProjectDetail() {
   }
 
   if (loading) {
-    return (
-      <PublicLayout>
-        <div
-          style={{
-            backgroundColor: "var(--color-paper)",
-            minHeight: "100vh",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <p
-            className="font-mono text-xs tracking-widest uppercase"
-            style={{ color: "var(--color-muted)" }}
-          >
-            Memuat Proyek...
-          </p>
-        </div>
-      </PublicLayout>
-    )
+    return <ProjectDetailSkeleton />
   }
 
   if (error || !project) {
@@ -313,7 +295,7 @@ export default function ProjectDetail() {
             className="link-underline font-mono text-xs tracking-widest uppercase mb-8 md:mb-10 inline-flex items-center gap-1.5 transition-colors hover:text-black"
             style={{ color: "var(--color-muted)", letterSpacing: "0.12em" }}
           >
-            ← Kembali ke Semua Karya
+            ← Kembali ke Semua Proyek
           </Link>
 
           <div className="grid md:grid-cols-3 gap-8 md:gap-16 mb-8 md:mb-12">
@@ -397,7 +379,7 @@ export default function ProjectDetail() {
                       }}
                     >
                       <GlobeIcon className="w-3.5 h-3.5 text-emerald-400" />
-                      Live Demo / Website ↗
+                      Live Website ↗
                     </a>
                   )}
 
@@ -433,7 +415,7 @@ export default function ProjectDetail() {
                       }}
                     >
                       <GitHubIcon className="w-4 h-4" />
-                      GitHub Repo ↗
+                      Repositori GitHub ↗
                     </a>
                   )}
 
@@ -451,7 +433,7 @@ export default function ProjectDetail() {
                       }}
                     >
                       <FigmaIcon className="w-3.5 h-4" />
-                      Buka Figma ↗
+                      Prototipe Figma ↗
                     </a>
                   )}
 
@@ -469,7 +451,7 @@ export default function ProjectDetail() {
                       }}
                     >
                       <InstagramIcon className="w-4 h-4 text-[#E1306C]" />
-                      Instagram ↗
+                      Lihat di Instagram ↗
                     </a>
                   )}
 
@@ -487,7 +469,7 @@ export default function ProjectDetail() {
                       }}
                     >
                       <GoogleDriveIcon className="w-4 h-4" />
-                      Berkas Drive ↗
+                      Dokumen Drive ↗
                     </a>
                   )}
                 </div>
@@ -673,7 +655,7 @@ export default function ProjectDetail() {
                 style={{ color: "var(--color-muted)", letterSpacing: "0.14em" }}
               >
                 {canonicalCategory === "Creative & Multimedia"
-                  ? `Galeri Desain & Karya Visual (${gallery.length})`
+                  ? `Galeri Desain & Visual Proyek (${gallery.length})`
                   : canonicalCategory === "Engineering & Tech"
                     ? `Tangkapan Layar & Dokumentasi Sistem (${gallery.length})`
                     : `Galeri Desain & Tangkapan Layar (${gallery.length})`}
@@ -810,7 +792,7 @@ export default function ProjectDetail() {
                     letterSpacing: "0.1em",
                   }}
                 >
-                  Semua Karya
+                  Semua Proyek
                 </Link>
               </div>
 
@@ -873,7 +855,7 @@ export default function ProjectDetail() {
                     className="p-3.5 border rounded border-dashed opacity-40 flex items-center justify-center text-[10px] font-mono"
                     style={{ borderColor: "var(--color-border)" }}
                   >
-                    Awal Karya
+                    Awal Proyek
                   </div>
                 )}
 
@@ -904,7 +886,7 @@ export default function ProjectDetail() {
                     className="p-3.5 border rounded border-dashed opacity-40 flex items-center justify-center text-[10px] font-mono"
                     style={{ borderColor: "var(--color-border)" }}
                   >
-                    Akhir Karya
+                    Akhir Proyek
                   </div>
                 )}
               </div>
@@ -919,7 +901,7 @@ export default function ProjectDetail() {
                   letterSpacing: "0.08em",
                 }}
               >
-                Semua Karya
+                Semua Proyek
               </Link>
             </div>
           </div>

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react"
 import { Link } from "react-router-dom"
 import PublicLayout from "@/layouts/public/PublicLayout"
+import { WorkSkeleton } from "@/components/common/Skeleton"
 import { getSupabaseClient } from "@/lib/supabase"
 import { projects as mockProjects } from "@/data/mockData"
 import {
@@ -56,26 +57,7 @@ export default function Work() {
   const filterTabs = ["Semua", ...MAIN_CATEGORIES]
 
   if (loading) {
-    return (
-      <PublicLayout>
-        <div
-          style={{
-            backgroundColor: "var(--color-paper)",
-            minHeight: "100vh",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <p
-            className="font-mono text-xs tracking-widest uppercase"
-            style={{ color: "var(--color-muted)" }}
-          >
-            Memuat Karya...
-          </p>
-        </div>
-      </PublicLayout>
-    )
+    return <WorkSkeleton />
   }
 
   return (
@@ -90,7 +72,7 @@ export default function Work() {
               className="font-mono text-xs tracking-widest uppercase mb-3"
               style={{ color: "var(--color-muted)", letterSpacing: "0.14em" }}
             >
-              Selected Works
+              Koleksi Proyek
             </p>
             <h1
               className="font-sans font-bold leading-none mb-4"
@@ -100,7 +82,7 @@ export default function Work() {
                 color: "var(--color-ink)",
               }}
             >
-              Karya &amp;{" "}
+              Proyek &amp;{" "}
               <span
                 style={{
                   fontFamily: "var(--font-serif)",
@@ -119,8 +101,8 @@ export default function Work() {
                 fontFamily: "var(--font-sans)",
               }}
             >
-              Eksplorasi rekayasa perangkat lunak, sistem digital, desain
-              antarmuka, hingga produksi visual dan multimedia kreatif.
+              Dokumentasi rekayasa perangkat lunak, perancangan antarmuka
+              digital, hingga produksi visual dan multimedia kreatif.
             </p>
           </div>
 
@@ -357,7 +339,7 @@ function ProjectCard({
           className="flex items-center gap-1.5 font-mono text-[11px] tracking-wider uppercase opacity-0 group-hover:opacity-100 transition-opacity duration-200"
           style={{ color: "var(--color-ink)", letterSpacing: "0.08em" }}
         >
-          Lihat Studi Kasus →
+          Lihat Detail Proyek →
         </div>
       </div>
     </Link>

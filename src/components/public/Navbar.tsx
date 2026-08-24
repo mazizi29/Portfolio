@@ -13,7 +13,7 @@ export default function Navbar() {
 
   const navLinks = [
     { to: "/", label: "Beranda", end: true },
-    { to: "/work", label: "Karya", end: false },
+    { to: "/work", label: "Proyek", end: false },
     { to: "/about", label: "Tentang", end: false },
     { to: "/contact", label: "Kontak", end: false },
   ]
@@ -39,16 +39,16 @@ export default function Navbar() {
           />
           <div className="flex flex-col justify-center">
             <span
-              className="font-sans font-bold text-xs sm:text-sm tracking-widest uppercase leading-none"
-              style={{ color: "var(--color-ink)", letterSpacing: "0.12em" }}
+              className="font-sans font-bold text-xs sm:text-sm tracking-wider uppercase leading-none"
+              style={{ color: "var(--color-ink)", letterSpacing: "0.08em" }}
             >
-              Portfolio
+              M. Azizi Abdillah
             </span>
             <span
               className="font-mono text-[10px] tracking-normal leading-tight mt-0.5"
               style={{ color: "var(--color-muted)" }}
             >
-              M. Azizi Abdillah
+              UI/UX &amp; Front-End
             </span>
           </div>
         </Link>
@@ -86,7 +86,7 @@ export default function Navbar() {
               color: "var(--color-ink)",
               borderRadius: "var(--radius-sm)",
             }}
-            title="Download CV Muhammad Azizi Abdillah (PDF)"
+            title="Unduh CV Muhammad Azizi Abdillah (PDF)"
           >
             <svg
               className="w-3.5 h-3.5 shrink-0"
@@ -101,7 +101,7 @@ export default function Navbar() {
                 d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
               />
             </svg>
-            CV (PDF)
+            Unduh CV
           </a>
         </div>
 
@@ -215,7 +215,7 @@ export default function Navbar() {
                 d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
               />
             </svg>
-            Download CV (PDF)
+            Unduh CV (PDF)
           </a>
         </div>
       )}

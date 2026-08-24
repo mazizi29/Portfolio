@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react"
 import { Link } from "react-router-dom"
 import PublicLayout from "@/layouts/public/PublicLayout"
+import { HomeSkeleton } from "@/components/common/Skeleton"
 import { getSupabaseClient } from "@/lib/supabase"
 import {
   projects as mockProjects,
@@ -21,6 +22,7 @@ export default function Home() {
   const [profile, setProfile] = useState<any>(null)
   const [settings, setSettings] = useState<any>(null)
   const [featured, setFeatured] = useState<any[]>([])
+  const [totalProjects, setTotalProjects] = useState<number>(mockProjects.length)
   const [experiences, setExperiences] = useState<any[]>([])
   const [hardSkills, setHardSkills] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
@@ -31,7 +33,7 @@ export default function Home() {
 
   const fetchData = async () => {
     try {
-      const [profRes, setRes, projRes, expRes, skillRes] = await Promise.all([
+      const [profRes, setRes, projRes, expRes, skillRes, countRes] = await Promise.all([
         supabase.from("profiles").select("*").limit(1).single(),
         supabase.from("site_settings").select("*").limit(1).single(),
         supabase
@@ -47,10 +49,17 @@ export default function Home() {
           .from("skills")
           .select("*")
           .order("order_index", { ascending: true }),
+        supabase
+          .from("projects")
+          .select("id", { count: "exact", head: true })
+          .eq("status", "published"),
       ])
 
       if (profRes.data) setProfile(profRes.data)
       if (setRes.data) setSettings(setRes.data)
+      if (typeof countRes.count === "number" && countRes.count > 0) {
+        setTotalProjects(countRes.count)
+      }
 
       // Fallback to mock projects if database has 0 featured items
       if (projRes.data && projRes.data.length > 0) {
@@ -106,26 +115,7 @@ export default function Home() {
   }
 
   if (loading) {
-    return (
-      <PublicLayout>
-        <div
-          style={{
-            backgroundColor: "var(--color-paper)",
-            minHeight: "100vh",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <p
-            className="font-mono text-xs tracking-widest uppercase"
-            style={{ color: "var(--color-muted)" }}
-          >
-            Memuat...
-          </p>
-        </div>
-      </PublicLayout>
-    )
+    return <HomeSkeleton />
   }
 
   let heroImage = HERO_PHOTO_DEFAULT
@@ -294,7 +284,7 @@ export default function Home() {
                     fontFamily: "var(--font-mono)",
                   }}
                 >
-                  Lihat Karya →
+                  Lihat Proyek →
                 </Link>
                 <a
                   href="/cv.pdf"
@@ -352,13 +342,13 @@ export default function Home() {
                     className="font-sans font-bold text-xl md:text-2xl mb-0.5"
                     style={{ color: "var(--color-ink)" }}
                   >
-                    4+
+                    3+
                   </p>
                   <p
                     className="font-mono text-xs"
                     style={{ color: "var(--color-muted)" }}
                   >
-                    Proyek Digital &amp; UI/UX
+                    Proyek Digital &amp; Visual Design
                   </p>
                 </div>
                 <div>
@@ -435,7 +425,7 @@ export default function Home() {
                   return (
                     <div
                       key={skill.id || index}
-                      className={`absolute ${conf.pos} z-20 animate-bounce`}
+                      className={`absolute ${conf.pos} z-20 animate-float-slow`}
                       style={conf.anim}
                     >
                       <div
@@ -472,7 +462,7 @@ export default function Home() {
           />
         </div>
 
-        {/* ── Karya Pilihan ─────────────────────────────────────── */}
+        {/* ── Proyek Pilihan ─────────────────────────────────────── */}
         <section className="max-w-[1440px] mx-auto px-6 md:px-16 py-20 md:py-28">
           <div className="flex items-center justify-between mb-12">
             <div>
@@ -480,7 +470,7 @@ export default function Home() {
                 className="font-mono text-xs tracking-widest uppercase mb-1"
                 style={{ color: "var(--color-muted)", letterSpacing: "0.14em" }}
               >
-                Selected Works
+                Sorotan Utama
               </p>
               <h2
                 className="font-sans font-bold"
@@ -490,7 +480,7 @@ export default function Home() {
                   letterSpacing: "-0.03em",
                 }}
               >
-                Karya Pilihan
+                Proyek Pilihan
               </h2>
             </div>
             <Link
@@ -498,12 +488,12 @@ export default function Home() {
               className="link-underline font-mono text-xs tracking-widest uppercase hidden md:block"
               style={{ color: "var(--color-muted)", letterSpacing: "0.12em" }}
             >
-              Semua Proyek →
+              Semua Proyek ({totalProjects}) →
             </Link>
           </div>
 
           <div className="space-y-0">
-            {featured.map((project, i) => (
+            {featured.slice(0, 3).map((project, i) => (
               <ProjectRow key={project.id || i} project={project} index={i} />
             ))}
           </div>
@@ -514,7 +504,7 @@ export default function Home() {
               className="link-underline font-mono text-xs tracking-widest uppercase"
               style={{ color: "var(--color-muted)", letterSpacing: "0.12em" }}
             >
-              Semua Proyek →
+              Semua Proyek ({totalProjects}) →
             </Link>
           </div>
         </section>
@@ -840,7 +830,7 @@ export default function Home() {
                   fontFamily: "var(--font-mono)",
                 }}
               >
-                DOWNLOAD CV (PDF)
+                UNDUH CV (PDF)
               </a>
             </div>
           </div>

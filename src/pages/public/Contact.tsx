@@ -50,7 +50,7 @@ export default function Contact() {
       href: "https://instagram.com/mazizi29_",
     },
     {
-      label: "Resume/CV",
+      label: "Dokumen CV",
       value: "Unduh Dokumen CV (PDF)",
       href: "/cv.pdf",
       download: true,

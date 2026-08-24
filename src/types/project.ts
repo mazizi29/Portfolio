@@ -93,7 +93,7 @@ export const CASE_STUDY_PRESETS: {
   sections: { label: string; sublabel: string; placeholder: string }[]
 }[] = [
   {
-    name: "Visual Showcase / Clean Gallery (Karya Desain)",
+    name: "Visual Showcase / Clean Gallery (Proyek Desain)",
     category: "Creative & Multimedia",
     sections: [],
   },
@@ -213,7 +213,7 @@ export const CASE_STUDY_PRESETS: {
         label: "Concept & Context",
         sublabel: "Konsep & Latar Belakang Foto",
         placeholder:
-          "Jelaskan momen, tema sesi foto, dan tujuan karya fotografi ini...",
+          "Jelaskan momen, tema sesi foto, dan tujuan proyek fotografi ini...",
       },
       {
         label: "Style & Execution",
@@ -223,7 +223,7 @@ export const CASE_STUDY_PRESETS: {
       },
       {
         label: "Post-Processing & Output",
-        sublabel: "Retouching & Kurasi Karya",
+        sublabel: "Retouching & Kurasi Proyek",
         placeholder:
           "Contoh format poin:\n- Color grading presisi dengan Adobe Lightroom & Photoshop\n- Retouching kulit dan pencahayaan tanpa menghilangkan tekstur alami\n- Kurasi seri foto terpilih untuk publikasi komersial/editorial",
       },

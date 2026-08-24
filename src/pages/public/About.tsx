@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react"
 import { Link } from "react-router-dom"
 import PublicLayout from "@/layouts/public/PublicLayout"
+import { AboutSkeleton } from "@/components/common/Skeleton"
 import { getSupabaseClient } from "@/lib/supabase"
 import {
   experience as mockExperience,
@@ -90,26 +91,7 @@ export default function About() {
   }
 
   if (loading) {
-    return (
-      <PublicLayout>
-        <div
-          style={{
-            backgroundColor: "var(--color-paper)",
-            minHeight: "100vh",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <p
-            className="font-mono text-xs tracking-widest uppercase"
-            style={{ color: "var(--color-muted)" }}
-          >
-            Memuat Profil...
-          </p>
-        </div>
-      </PublicLayout>
-    )
+    return <AboutSkeleton />
   }
 
   const availabilityText =
@@ -273,7 +255,7 @@ export default function About() {
                 className="font-mono text-xs tracking-widest uppercase mb-1"
                 style={{ color: "var(--color-muted)", letterSpacing: "0.14em" }}
               >
-                Experience &amp; Education
+                Riwayat &amp; Pengalaman
               </p>
               <h2
                 className="font-sans font-bold text-2xl md:text-3xl"
@@ -486,7 +468,7 @@ export default function About() {
                   letterSpacing: "0.14em",
                 }}
               >
-                Skills &amp; Tools
+                Keahlian &amp; Tools
               </p>
               <h2
                 className="font-sans font-bold text-2xl md:text-3xl"
@@ -520,10 +502,10 @@ export default function About() {
                       style={{ color: "var(--color-paper)" }}
                     >
                       {cat === "soft_skill"
-                        ? "Soft Skill"
+                        ? "Keahlian Interpersonal"
                         : cat === "hard_skill"
-                          ? "Hard Skill"
-                          : "Alat"}
+                          ? "Keahlian Teknis"
+                          : "Alat & Software"}
                     </h3>
                     <p
                       className="font-mono text-xs mb-6"
@@ -533,10 +515,10 @@ export default function About() {
                       }}
                     >
                       {cat === "soft_skill"
-                        ? "Interpersonal"
+                        ? "Soft Skills"
                         : cat === "hard_skill"
-                          ? "Technical"
-                          : "Tools & Software"}
+                          ? "Technical Skills"
+                          : "Tools & Frameworks"}
                     </p>
                     <ul className="flex flex-col gap-2.5">
                       {list.length === 0 ? (

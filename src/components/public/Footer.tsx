@@ -28,7 +28,7 @@ export default function Footer() {
         <div className="flex flex-wrap items-center gap-6 sm:gap-8">
           {[
             { to: "/", label: "Beranda" },
-            { to: "/work", label: "Karya" },
+            { to: "/work", label: "Proyek" },
             { to: "/about", label: "Tentang" },
             { to: "/contact", label: "Kontak" },
           ].map(({ to, label }) => (
@@ -49,7 +49,7 @@ export default function Footer() {
             className="link-underline font-mono text-xs tracking-widest uppercase font-semibold"
             style={{ color: "var(--color-ink)", letterSpacing: "0.1em" }}
           >
-            CV (PDF) ↗
+            Unduh CV (PDF) ↗
           </a>
         </div>
 

@@ -109,6 +109,57 @@ body {
   transform: scale(1.03);
 }
 
+/* Smooth floating levitation for hero badges */
+@keyframes floatSlow {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+.animate-float-slow {
+  animation: floatSlow 4.5s ease-in-out infinite;
+}
+
+/* Skeleton loader shimmer animation */
+@keyframes skeletonShimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(230, 230, 226, 0.6) 25%,
+    rgba(245, 245, 242, 0.9) 50%,
+    rgba(230, 230, 226, 0.6) 75%
+  );
+  background-size: 200% 100%;
+  animation: skeletonShimmer 1.8s ease-in-out infinite;
+}
+
+/* Accessibility: prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .animate-bounce,
+  .animate-float-slow,
+  .animate-pulse,
+  .skeleton-shimmer {
+    animation: none !important;
+  }
+}
+
 /* Admin sidebar — selalu tampil di desktop, override transform dari JS */
 @media (min-width: 768px) {
   .admin-sidebar {

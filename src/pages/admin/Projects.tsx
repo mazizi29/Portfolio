@@ -382,13 +382,13 @@ export default function AdminProjects() {
               className="font-sans font-bold text-xl md:text-2xl"
               style={{ color: "var(--color-ink)", letterSpacing: "-0.02em" }}
             >
-              Semua Karya &amp; Proyek
+              Semua Proyek
             </h2>
             <p
               className="text-xs font-mono mt-1"
               style={{ color: "var(--color-muted)" }}
             >
-              Total {projects.length} karya terdaftar · Urutan tersinkronisasi
+              Total {projects.length} proyek terdaftar · Urutan tersinkronisasi
               otomatis ke Halaman Publik &amp; Beranda
             </p>
           </div>
@@ -432,7 +432,7 @@ export default function AdminProjects() {
             <span style={{ color: "var(--color-ink)" }}>
               <strong>Tips Urutan:</strong> Tahan &amp; geser ikon{" "}
               <strong>⠿</strong> atau klik tombol <strong>▲ ▼</strong> pada
-              baris proyek untuk mengatur urutan karya yang tampil di website.
+              baris proyek untuk mengatur urutan proyek yang tampil di website.
             </span>
           </div>
           <span className="font-mono text-[11px] shrink-0 text-gray-500">
@@ -1566,7 +1566,7 @@ function ProjectForm({
                 className="text-sm font-medium cursor-pointer"
                 style={{ color: "var(--color-ink)" }}
               >
-                Tampilkan di Bagian Karya Pilihan (Featured) di Beranda
+                Tampilkan di Bagian Proyek Pilihan (Featured) di Beranda
               </label>
             </div>
 
@@ -1584,7 +1584,7 @@ function ProjectForm({
                   setForm({ ...form, description: e.target.value })
                 }
                 disabled={loading}
-                placeholder="Tulis 1-2 kalimat ringkasan yang menarik dan menjelaskan esensi karya ini..."
+                placeholder="Tulis 1-2 kalimat ringkasan yang menarik dan menjelaskan esensi proyek ini..."
                 className="w-full px-4 py-2.5 text-sm border outline-none resize-none rounded-md"
                 style={{
                   borderColor: "var(--color-border)",
@@ -1705,7 +1705,7 @@ function ProjectForm({
                 </p>
                 <p className="text-xs text-gray-500 mt-0.5">
                   Seluruh tautan yang diisi akan otomatis ditampilkan di halaman
-                  detail karya.
+                  detail proyek.
                 </p>
               </div>
 
@@ -2059,7 +2059,7 @@ function ProjectForm({
                   className="text-xs max-w-md leading-relaxed"
                   style={{ color: "var(--color-muted)" }}
                 >
-                  Karya ini tidak memiliki section studi kasus teknis. Halaman
+                  Proyek ini tidak memiliki section studi kasus teknis. Halaman
                   publik akan langsung menampilkan foto cover, deskripsi
                   singkat, serta galeri visual secara clean dan elegan.
                 </p>
@@ -2453,7 +2453,7 @@ function ProjectForm({
                       <span>
                         <strong>Tips Galeri Visual:</strong> Tarik &amp; geser
                         gambar untuk mengubah urutan. Berikan judul dan
-                        keterangan 1 kalimat (opsional) pada setiap visual karya.
+                        keterangan 1 kalimat (opsional) pada setiap visual proyek.
                       </span>
                     </span>
                     <span className="font-semibold px-2 py-0.5 rounded bg-gray-200 text-gray-800 shrink-0">
