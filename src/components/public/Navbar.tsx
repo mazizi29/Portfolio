@@ -34,7 +34,7 @@ export default function Navbar() {
         <Link to="/" className="flex items-center gap-3 group">
           <img
             src="/logo.png"
-            alt="Logo"
+            alt="Logo Muhammad Azizi Abdillah"
             className="w-7 h-7 object-contain shrink-0"
           />
           <div className="flex flex-col justify-center">
@@ -48,7 +48,7 @@ export default function Navbar() {
               className="font-mono text-[10px] tracking-normal leading-tight mt-0.5"
               style={{ color: "var(--color-muted)" }}
             >
-              UI/UX &amp; Front-End
+              Creative Visual &amp; Multimedia
             </span>
           </div>
         </Link>

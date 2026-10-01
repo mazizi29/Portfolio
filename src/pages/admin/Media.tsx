@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react"
 import AdminLayout from "@/layouts/admin/AdminLayout"
+import SafeImage from "@/components/common/SafeImage"
 import { getSupabaseClient } from "@/lib/supabase"
 import { uploadImage } from "@/lib/upload"
 import {
@@ -253,7 +254,7 @@ export default function Media() {
                 >
                   {/* Thumbnail Image Frame */}
                   <div className="aspect-square w-full bg-gray-50 flex items-center justify-center p-2 overflow-hidden relative">
-                    <img
+                    <SafeImage
                       src={item.url}
                       alt={item.name}
                       className="w-full h-full object-contain pointer-events-none drop-shadow-xs transition-transform duration-200 group-hover:scale-105"
@@ -347,7 +348,7 @@ export default function Media() {
 
             {/* Image Preview Box */}
             <div className="w-full h-32 bg-gray-50 border rounded-md overflow-hidden flex items-center justify-center p-2 mb-3">
-              <img
+              <SafeImage
                 src={selected.url}
                 alt={selected.name}
                 className="max-h-full max-w-full object-contain"

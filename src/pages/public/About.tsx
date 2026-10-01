@@ -2,6 +2,7 @@ import { useState, useEffect } from "react"
 import { Link } from "react-router-dom"
 import PublicLayout from "@/layouts/public/PublicLayout"
 import { AboutSkeleton } from "@/components/common/Skeleton"
+import SafeImage from "@/components/common/SafeImage"
 import { getSupabaseClient } from "@/lib/supabase"
 import {
   experience as mockExperience,
@@ -27,19 +28,26 @@ export default function About() {
 
   const fetchAboutData = async () => {
     try {
-      const [profRes, expRes, skillRes] = await Promise.all([
-        supabase.from("profiles").select("*").limit(1).single(),
-        supabase
-          .from("experience")
-          .select("*")
-          .order("start_date", { ascending: true }),
-        supabase
-          .from("skills")
-          .select("*")
-          .order("order_index", { ascending: true }),
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error("Supabase fetch timeout")), 2500),
+      )
+
+      const [profRes, expRes, skillRes]: any = await Promise.race([
+        Promise.all([
+          supabase.from("profiles").select("*").limit(1).single(),
+          supabase
+            .from("experience")
+            .select("*")
+            .order("start_date", { ascending: true }),
+          supabase
+            .from("skills")
+            .select("*")
+            .order("order_index", { ascending: true }),
+        ]),
+        timeoutPromise,
       ])
 
-      if (profRes.data) setProfile(profRes.data)
+      if (profRes?.data) setProfile(profRes.data)
 
       if (expRes.data && expRes.data.length > 0) {
         const uniqueExp = Array.from(
@@ -96,7 +104,7 @@ export default function About() {
 
   const availabilityText =
     profile?.availability === "open"
-      ? "Terbuka untuk Magang"
+      ? "Terbuka untuk Kolaborasi"
       : profile?.availability === "freelance"
         ? "Tersedia untuk Freelance"
         : "Sedang Tidak Tersedia"
@@ -149,7 +157,7 @@ export default function About() {
                   fontVariationSettings: '"opsz" 32',
                 }}
               >
-                Mahasiswa Informatika | UI/UX &amp; Front-End
+                Creative Visual | Desain Grafis, Fotografi &amp; Video
               </p>
 
               <div className="space-y-4">
@@ -162,7 +170,7 @@ export default function About() {
                   }}
                 >
                   {profile?.intro ||
-                    "Mahasiswa Informatika Universitas Nahdlatul Ulama’ Yogyakarta yang aktif mendalami UI/UX Design dan Front-End Development. Memiliki latar belakang multimedia yang membentuk pemahaman visual yang kuat — dari perancangan antarmuka hingga implementasi kode yang fungsional. Terbiasa bekerja secara terstruktur, kolaboratif, serta berorientasi pada kemudahan pengguna."}
+                    "Creative visual dari Yogyakarta dengan latar belakang multimedia. Berfokus pada Desain Grafis, Fotografi, dan Video Editing — menghadirkan karya visual yang bercerita dan berdampak melalui Layar Putih Creative Studio."}
                 </p>
               </div>
 
@@ -234,9 +242,10 @@ export default function About() {
                 border: "1px solid var(--color-border)",
               }}
             >
-              <img
+              <SafeImage
                 src={aboutImage}
                 alt="Muhammad Azizi Abdillah"
+                fallbackSrc="/pas_foto.jpg"
                 className="w-full h-full object-cover"
                 style={{ objectPosition: "top center" }}
               />

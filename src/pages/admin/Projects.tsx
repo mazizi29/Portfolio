@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react"
 import AdminLayout from "@/layouts/admin/AdminLayout"
 import FormattedContent from "@/components/common/FormattedContent"
+import SafeImage from "@/components/common/SafeImage"
 import { getSupabaseClient } from "@/lib/supabase"
 import { uploadImage } from "@/lib/upload"
+import ImageCropperModal, { CropAspectRatio } from "@/components/common/ImageCropperModal"
 import {
   Project,
   ProjectSection,
@@ -11,18 +13,55 @@ import {
   MainCategory,
   SUBCATEGORY_SUGGESTIONS,
   CASE_STUDY_PRESETS,
+  DISPLAY_MODES,
+  DisplayMode,
+  ROLE_SUGGESTIONS,
   normalizeCategory,
   getProjectSubcategory,
   normalizeProjectSections,
   normalizeGallery,
   sortProjectsByOrder,
   getProjectLinks,
+  getProjectDisplayMode,
   encodeProjectTags,
   getCleanPublicTags,
   getYouTubeEmbedUrl,
 } from "@/types/project"
 
 const supabase = getSupabaseClient()
+
+function getProjectRowThumbnail(p: Project): string | null {
+  if (p.cover_url) return p.cover_url
+  if (Array.isArray(p.gallery) && p.gallery.length > 0 && p.gallery[0]?.image_url) {
+    return p.gallery[0].image_url
+  }
+  const vUrl = p.video_url || p.live_url || getProjectLinks(p).video_url
+  if (vUrl) {
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/
+    const match = vUrl.match(regExp)
+    if (match && match[2].length === 11) {
+      return `https://img.youtube.com/vi/${match[2]}/mqdefault.jpg`
+    }
+  }
+  return null
+}
+
+function getProjectRowCategoryBadge(p: Project) {
+  const sub = (p.subcategory || "").toLowerCase()
+  const cat = (p.category || "").toLowerCase()
+  if (sub.includes("video") || sub.includes("reels") || p.video_url)
+    return { icon: "🎬", label: "Video" }
+  if (sub.includes("photo") || sub.includes("fotografi") || cat.includes("photo"))
+    return { icon: "📷", label: "Foto" }
+  if (
+    sub.includes("logo") ||
+    sub.includes("feed") ||
+    sub.includes("design") ||
+    sub.includes("desain")
+  )
+    return { icon: "🎨", label: "Desain" }
+  return { icon: "💻", label: "Digital" }
+}
 
 export default function AdminProjects() {
   const [projects, setProjects] = useState<Project[]>([])
@@ -101,7 +140,7 @@ export default function AdminProjects() {
     const { error } = await supabase.from("projects").delete().eq("id", id)
     if (error) {
       console.error("Error deleting project:", error)
-      alert("Gagal menghapus proyek.")
+      alert(`Gagal menghapus proyek: ${error.message}`)
     } else {
       setProjects((prev) => prev.filter((p) => p.id !== id))
     }
@@ -332,11 +371,18 @@ export default function AdminProjects() {
           .update({ sort_order: newOrder })
           .eq("id", p.id)
       })
-      await Promise.all(updates)
-      setOrderSavedToast(true)
-      setTimeout(() => setOrderSavedToast(false), 2500)
-    } catch (err) {
+      const results = await Promise.all(updates)
+      const hasError = results.find((r) => r.error)
+      if (hasError) {
+        console.error("Failed to save project order:", hasError.error)
+        alert(`Gagal menyimpan urutan proyek: ${hasError.error?.message}`)
+      } else {
+        setOrderSavedToast(true)
+        setTimeout(() => setOrderSavedToast(false), 2500)
+      }
+    } catch (err: any) {
       console.error("Failed to save project order:", err)
+      alert(`Gagal menyimpan urutan proyek: ${err.message}`)
     } finally {
       setIsSavingOrder(false)
     }
@@ -639,19 +685,21 @@ export default function AdminProjects() {
                         backgroundColor: "var(--color-border-light)",
                       }}
                     >
-                      {p.cover_url ? (
-                        <img
-                          src={p.cover_url}
+                      {getProjectRowThumbnail(p) ? (
+                        <SafeImage
+                          src={getProjectRowThumbnail(p)!}
                           alt=""
                           className="w-full h-full object-cover"
                         />
                       ) : (
-                        <span
-                          className="text-[10px] font-mono"
-                          style={{ color: "var(--color-muted)" }}
-                        >
-                          No Img
-                        </span>
+                        <div className="flex flex-col items-center justify-center text-center p-1">
+                          <span className="text-base leading-none mb-0.5">
+                            {getProjectRowCategoryBadge(p).icon}
+                          </span>
+                          <span className="text-[9px] font-mono text-stone-500 uppercase">
+                            {getProjectRowCategoryBadge(p).label}
+                          </span>
+                        </div>
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
@@ -772,19 +820,21 @@ export default function AdminProjects() {
                         backgroundColor: "var(--color-border-light)",
                       }}
                     >
-                      {p.cover_url ? (
-                        <img
-                          src={p.cover_url}
+                      {getProjectRowThumbnail(p) ? (
+                        <SafeImage
+                          src={getProjectRowThumbnail(p)!}
                           alt=""
                           className="w-full h-full object-cover"
                         />
                       ) : (
-                        <span
-                          className="text-[9px] font-mono"
-                          style={{ color: "var(--color-muted)" }}
-                        >
-                          No Img
-                        </span>
+                        <div className="flex flex-col items-center justify-center text-center">
+                          <span className="text-sm leading-none">
+                            {getProjectRowCategoryBadge(p).icon}
+                          </span>
+                          <span className="text-[8px] font-mono text-stone-400">
+                            {getProjectRowCategoryBadge(p).label}
+                          </span>
+                        </div>
                       )}
                     </div>
 
@@ -993,7 +1043,7 @@ function ProjectForm({
     description: project?.description || "",
     category: (project?.category
       ? normalizeCategory(project.category)
-      : "Engineering & Tech") as MainCategory,
+      : "Creative & Multimedia") as MainCategory,
     subcategory: initialSubcategory,
     year: project?.year || new Date().getFullYear().toString(),
     status: project?.status || "published",
@@ -1003,6 +1053,7 @@ function ProjectForm({
     role: project?.role || "",
     toolsText: parseArrayToString(project?.tools),
     tagsText: getInitialTags(),
+    display_mode: getProjectDisplayMode(project),
 
     // Smart Links
     github_url: initialLinks.github_url,
@@ -1023,6 +1074,99 @@ function ProjectForm({
   const [uploadingGallery, setUploadingGallery] = useState(false)
   const [newGalleryUrl, setNewGalleryUrl] = useState("")
   const [previewSectionId, setPreviewSectionId] = useState<string | null>(null)
+
+  // Image Cropper Modal State
+  const [cropModal, setCropModal] = useState<{
+    isOpen: boolean
+    imageUrl: string
+    title: string
+    subtitle?: string
+    aspectRatio: CropAspectRatio
+    target: "cover" | { type: "gallery"; index: number }
+  }>({
+    isOpen: false,
+    imageUrl: "",
+    title: "",
+    aspectRatio: "4:5",
+    target: "cover",
+  })
+
+  const handleOpenCropForCover = () => {
+    if (!form.cover_url) return
+    let defaultRatio: CropAspectRatio = "16:9"
+    const sub = (form.subcategory || "").toLowerCase()
+    if (
+      sub.includes("social") ||
+      sub.includes("feed") ||
+      sub.includes("poster") ||
+      sub.includes("photo") ||
+      sub.includes("fotografi")
+    ) {
+      defaultRatio = "4:5"
+    } else if (sub.includes("logo") || sub.includes("visual identity")) {
+      defaultRatio = "1:1"
+    }
+    setCropModal({
+      isOpen: true,
+      imageUrl: form.cover_url,
+      title: `Crop Cover: ${form.title || "Proyek"}`,
+      aspectRatio: defaultRatio,
+      target: "cover",
+    })
+  }
+
+  const handleOpenCropForGallery = (index: number) => {
+    const item = form.gallery[index]
+    if (!item || !item.image_url) return
+    let defaultRatio: CropAspectRatio = "4:5"
+    const sub = (form.subcategory || "").toLowerCase()
+    const cat = (form.category || "").toLowerCase()
+
+    if (sub.includes("logo") || sub.includes("visual identity")) {
+      defaultRatio = "1:1"
+    } else if (sub.includes("video") || sub.includes("desktop")) {
+      defaultRatio = "16:9"
+    } else if (
+      sub.includes("photo") ||
+      sub.includes("fotografi") ||
+      cat.includes("photo") ||
+      cat.includes("fotografi")
+    ) {
+      defaultRatio = "free"
+    }
+
+    setCropModal({
+      isOpen: true,
+      imageUrl: item.image_url,
+      title: `Crop Gambar #${index + 1}: ${item.title || "Slide Galeri"}`,
+      subtitle:
+        item.caption ||
+        "Pilih rasio: Free / Bebas untuk Fotografi (menghindari gambar terpotong), 4:5 untuk Feed, atau 1:1 untuk Logo",
+      aspectRatio: defaultRatio,
+      target: { type: "gallery", index },
+    })
+  }
+
+  const handleCropComplete = (croppedUrl: string) => {
+    if (cropModal.target === "cover") {
+      setForm((prev) => ({ ...prev, cover_url: croppedUrl }))
+    } else if (
+      typeof cropModal.target === "object" &&
+      cropModal.target.type === "gallery"
+    ) {
+      const targetIdx = cropModal.target.index
+      setForm((prev) => {
+        const nextGallery = [...prev.gallery]
+        if (nextGallery[targetIdx]) {
+          nextGallery[targetIdx] = {
+            ...nextGallery[targetIdx],
+            image_url: croppedUrl,
+          }
+        }
+        return { ...prev, gallery: nextGallery }
+      })
+    }
+  }
 
   const activeSuggestions = SUBCATEGORY_SUGGESTIONS[form.category] || []
 
@@ -1199,7 +1343,7 @@ function ProjectForm({
       liveUrlTrim = videoUrlTrim
     }
 
-    // Safely encode metadata links and gallery metadata into tags
+    // Safely encode metadata links, display mode, and gallery metadata into tags
     const finalTags = encodeProjectTags(
       rawTags,
       {
@@ -1209,6 +1353,7 @@ function ProjectForm({
         drive_url: driveUrlTrim,
       },
       form.gallery,
+      form.display_mode,
     )
 
     const overviewText = form.sections[0]?.content || ""
@@ -1265,7 +1410,7 @@ function ProjectForm({
             },
             {
               key: "media",
-              label: `4. Media & Galeri (${form.gallery.length + (form.cover_url ? 1 : 0)})`,
+              label: `4. Media & Galeri (${form.gallery.length})`,
             },
           ].map((tab) => {
             const isActive = activeTab === tab.key
@@ -1370,7 +1515,7 @@ function ProjectForm({
                 value={form.subtitle}
                 onChange={(e) => setForm({ ...form, subtitle: e.target.value })}
                 disabled={loading}
-                placeholder="Contoh: Personal Finance Management App / Commercial Showreel"
+                placeholder="Contoh: Brand Guidelines & Visual Identity / Commercial Photography / Video Profil"
                 className="w-full px-4 py-2.5 text-sm border outline-none rounded-md"
                 style={{
                   borderColor: "var(--color-border)",
@@ -1488,6 +1633,74 @@ function ProjectForm({
                     })}
                   </div>
                 )}
+              </div>
+            </div>
+
+            {/* ── Format Tampilan Visual (Display Mode) ── */}
+            <div
+              className="p-5 border rounded-md flex flex-col gap-3"
+              style={{
+                borderColor: "var(--color-border)",
+                backgroundColor: "#F7F7F5",
+              }}
+            >
+              <div>
+                <label
+                  className="font-mono text-xs tracking-widest uppercase font-bold"
+                  style={{ color: "var(--color-ink)" }}
+                >
+                  Format Tampilan Visual (Display Framing Mode)
+                </label>
+                <p className="text-xs mt-0.5" style={{ color: "var(--color-muted)" }}>
+                  Pilih cara karya ini dipresentasikan di halaman detail publik (mockup framing interaktif).
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
+                {DISPLAY_MODES.map((mode) => {
+                  const isSelected = form.display_mode === mode.id
+                  return (
+                    <button
+                      key={mode.id}
+                      type="button"
+                      onClick={() =>
+                        setForm({
+                          ...form,
+                          display_mode: mode.id as DisplayMode,
+                        })
+                      }
+                      className="p-3 border rounded-md text-left transition-all cursor-pointer flex flex-col gap-1"
+                      style={{
+                        borderColor: isSelected
+                          ? "var(--color-ink)"
+                          : "var(--color-border)",
+                        backgroundColor: isSelected
+                          ? "var(--color-ink)"
+                          : "#FFFFFF",
+                        color: isSelected
+                          ? "var(--color-paper)"
+                          : "var(--color-ink)",
+                      }}
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="font-mono text-xs font-bold">
+                          {mode.label}
+                        </span>
+                        {isSelected && <span className="text-xs">✓</span>}
+                      </div>
+                      <span
+                        className="text-[11px] leading-snug line-clamp-2"
+                        style={{
+                          color: isSelected
+                            ? "rgba(255,255,255,0.8)"
+                            : "var(--color-muted)",
+                        }}
+                      >
+                        {mode.description}
+                      </span>
+                    </button>
+                  )
+                })}
               </div>
             </div>
 
@@ -1631,7 +1844,7 @@ function ProjectForm({
                 value={form.role}
                 onChange={(e) => setForm({ ...form, role: e.target.value })}
                 disabled={loading}
-                placeholder="Contoh: Fullstack Developer / UI Designer / Director & Cinematographer"
+                placeholder="Contoh: Brand Designer / Lead Photographer / Video Editor & Cinematographer"
                 className="w-full px-4 py-2.5 text-sm border outline-none rounded-md"
                 style={{
                   borderColor: "var(--color-border)",
@@ -1639,6 +1852,36 @@ function ProjectForm({
                   backgroundColor: "#FFFFFF",
                 }}
               />
+
+              {/* Pilihan Cepat Peran Desainer */}
+              <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                <span className="text-[10px] font-mono mr-1 text-gray-400">
+                  Pilihan Cepat:
+                </span>
+                {ROLE_SUGGESTIONS.map((r) => {
+                  const isSelected = form.role === r
+                  return (
+                    <button
+                      key={r}
+                      type="button"
+                      onClick={() => setForm({ ...form, role: r })}
+                      className="text-[10px] font-mono px-2.5 py-0.5 border rounded-full cursor-pointer transition-colors"
+                      style={{
+                        borderColor: isSelected
+                          ? "var(--color-ink)"
+                          : "var(--color-border)",
+                        backgroundColor: isSelected
+                          ? "var(--color-ink)"
+                          : "#FFFFFF",
+                        color: isSelected ? "#FFFFFF" : "var(--color-muted)",
+                        fontWeight: isSelected ? 600 : 400,
+                      }}
+                    >
+                      {r}
+                    </button>
+                  )
+                })}
+              </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1656,7 +1899,7 @@ function ProjectForm({
                     setForm({ ...form, toolsText: e.target.value })
                   }
                   disabled={loading}
-                  placeholder="Figma, React Native, Firebase, Premiere Pro, Python"
+                  placeholder="Adobe Illustrator, Photoshop, Lightroom Classic, Premiere Pro, Figma"
                   className="w-full px-4 py-2.5 text-sm border outline-none rounded-md"
                   style={{
                     borderColor: "var(--color-border)",
@@ -1680,7 +1923,7 @@ function ProjectForm({
                     setForm({ ...form, tagsText: e.target.value })
                   }
                   disabled={loading}
-                  placeholder="UI/UX, Frontend, Commercial Video, Systems"
+                  placeholder="Visual Identity, Branding, Portraiture, Event Documentation, Video Editing"
                   className="w-full px-4 py-2.5 text-sm border outline-none rounded-md"
                   style={{
                     borderColor: "var(--color-border)",
@@ -2240,9 +2483,80 @@ function ProjectForm({
                 Cover &amp; Galeri Media
               </h3>
               <p className="text-xs" style={{ color: "var(--color-muted)" }}>
-                Upload cover utama, sematkan video embed YouTube, dan tambahkan
-                galeri mockup/foto resolusi tinggi.
+                Upload cover utama, atur mode tampilan display halaman proyek, dan potong gambar (crop) sesuai rasio optimal (1080×1350 untuk feed, 1:1 untuk logo, 16:9 untuk cover).
               </p>
+            </div>
+
+            {/* Panduan Rasio Display Halaman Proyek */}
+            <div className="p-4 rounded-xl border bg-amber-50/70 border-amber-200 text-xs text-amber-950 flex flex-col gap-2">
+              <div className="flex items-center gap-2 font-bold font-mono text-amber-900 text-xs">
+                <span>✂</span>
+                <span>Panduan Rasio Display Halaman Proyek:</span>
+              </div>
+              <ul className="list-disc pl-5 space-y-1 text-[11px] text-amber-900/90 leading-relaxed font-sans">
+                <li>
+                  <strong>Fotografi &amp; Dokumentasi Komersial (Rasio Alami Bebas / Original):</strong> Galeri fotografi di halaman proyek kini otomatis menampilkan gambar dalam <strong>rasio aslinya (landscape 3:2, portrait 2:3, atau square 1:1) tanpa terpotong</strong>. Anda tidak wajib memotong gambar fotografi kecuali ingin framing khusus (gunakan opsi rasio Bebas / Free).
+                </li>
+                <li>
+                  <strong>Feeds Media Sosial (1080 × 1350, Rasio 4:5):</strong> Gunakan tombol <strong>✂ Crop</strong> pada gambar untuk memotong ke rasio potret 4:5 agar tampil proporsional di dalam Frame Handphone halaman proyek.
+                </li>
+                <li>
+                  <strong>Identitas Visual &amp; Logo (1:1):</strong> Gunakan rasio 1:1 agar logo terpusat simetris pada grid brand marks.
+                </li>
+                <li>
+                  <strong>Video YouTube (Frame Laptop 16:9):</strong> Cukup masukkan URL video YouTube di tab Peran &amp; Tautan, video akan otomatis disematkan dalam Frame Laptop.
+                </li>
+                <li>
+                  <strong>Keterangan Slide &amp; Foto:</strong> Berikan <em>Judul</em> dan <em>Keterangan Slide / Foto</em> pada setiap gambar galeri agar judul dan narasi cerita otomatis muncul pada display tampilan.
+                </li>
+              </ul>
+            </div>
+
+            {/* Display Mode Selector */}
+            <div
+              className="flex flex-col gap-2 p-4 border rounded-md"
+              style={{
+                borderColor: "var(--color-border)",
+                backgroundColor: "#FFFFFF",
+              }}
+            >
+              <label
+                className="font-mono text-xs tracking-widest uppercase font-bold"
+                style={{ color: "var(--color-ink)" }}
+              >
+                Mode Tampilan Showcase di Halaman Proyek
+              </label>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 pt-1">
+                {DISPLAY_MODES.map((dm) => {
+                  const isSelected = form.display_mode === dm.id
+                  return (
+                    <button
+                      key={dm.id}
+                      type="button"
+                      onClick={() => setForm({ ...form, display_mode: dm.id as DisplayMode })}
+                      className={`p-3 text-left rounded-lg border transition-all cursor-pointer flex flex-col justify-between gap-1.5 ${
+                        isSelected
+                          ? "bg-stone-100 border-black shadow-xs ring-1 ring-black"
+                          : "bg-white border-stone-200 hover:bg-stone-50"
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="font-sans font-bold text-xs" style={{ color: "var(--color-ink)" }}>
+                          {dm.label}
+                        </span>
+                        <span
+                          className={`w-3 h-3 rounded-full border ${
+                            isSelected ? "bg-black border-black" : "border-stone-300"
+                          }`}
+                        />
+                      </div>
+                      <span className="text-[11px] text-gray-500 line-clamp-2 leading-relaxed font-sans">
+                        {dm.description}
+                      </span>
+                    </button>
+                  )
+                })}
+              </div>
             </div>
 
             {/* Cover Section */}
@@ -2253,12 +2567,29 @@ function ProjectForm({
                 backgroundColor: "#FAFAFA",
               }}
             >
-              <label
-                className="font-mono text-xs tracking-widest uppercase font-bold"
-                style={{ color: "var(--color-ink)" }}
-              >
-                Gambar Cover Proyek (Wajib) *
-              </label>
+              <div className="flex items-center justify-between">
+                <div>
+                  <label
+                    className="font-mono text-xs tracking-widest uppercase font-bold"
+                    style={{ color: "var(--color-ink)" }}
+                  >
+                    Gambar Cover Proyek (Opsional)
+                  </label>
+                  <p className="text-[11px] text-gray-500 font-sans mt-0.5">
+                    ✦ Tidak diperlukan untuk kategori Desain (Feed &amp; Logo), Fotografi Komersial, atau Video. Cover hanya dianjurkan untuk proyek Web &amp; UI/UX.
+                  </p>
+                </div>
+                {form.cover_url && (
+                  <button
+                    type="button"
+                    onClick={handleOpenCropForCover}
+                    className="font-mono text-xs px-2.5 py-1 rounded bg-amber-500 hover:bg-amber-400 text-black font-bold flex items-center gap-1 cursor-pointer transition-colors shadow-xs"
+                  >
+                    <span>✂</span>
+                    <span>Crop Cover</span>
+                  </button>
+                )}
+              </div>
 
               <div className="flex gap-2">
                 <input
@@ -2304,17 +2635,33 @@ function ProjectForm({
               </div>
 
               {form.cover_url && (
-                <div
-                  className="mt-2 w-full max-w-md h-48 border rounded overflow-hidden relative group"
-                  style={{ borderColor: "var(--color-border)" }}
-                >
-                  <img
-                    src={form.cover_url}
-                    alt="Cover preview"
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-mono">
-                    Pratinjau Cover
+                <div className="mt-2 flex flex-col sm:flex-row gap-4 items-start">
+                  <div
+                    className="w-full max-w-xs h-40 border rounded-lg overflow-hidden relative group shrink-0 shadow-2xs"
+                    style={{ borderColor: "var(--color-border)" }}
+                  >
+                    <SafeImage
+                      src={form.cover_url}
+                      alt="Cover preview"
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-mono">
+                      Pratinjau Cover
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col gap-2 pt-1">
+                    <button
+                      type="button"
+                      onClick={handleOpenCropForCover}
+                      className="font-mono text-xs px-3.5 py-2 rounded-lg bg-amber-500 hover:bg-amber-400 text-black font-semibold flex items-center gap-2 shadow-xs cursor-pointer transition-all w-fit"
+                    >
+                      <span>✂</span>
+                      <span>Sesuaikan &amp; Crop Rasio Cover</span>
+                    </button>
+                    <p className="text-[11px] text-gray-500 leading-relaxed font-sans max-w-xs">
+                      Potong ke rasio 4:5 (1080×1350) untuk feed, 1:1 untuk logo mark, atau 16:9 untuk cover video/landscape.
+                    </p>
                   </div>
                 </div>
               )}
@@ -2446,19 +2793,22 @@ function ProjectForm({
                     }}
                   >
                     <span
-                      className="flex items-center gap-1.5"
+                      className="flex items-center gap-2"
                       style={{ color: "var(--color-ink)" }}
                     >
-                      <span className="text-base">⠿</span>
+                      <span className="text-base text-gray-400">⠿</span>
                       <span>
-                        <strong>Tips Galeri Visual:</strong> Tarik &amp; geser
-                        gambar untuk mengubah urutan. Berikan judul dan
-                        keterangan 1 kalimat (opsional) pada setiap visual proyek.
+                        <strong>Tips Galeri Visual:</strong> Tarik &amp; geser kartu untuk mengubah urutan slide. Klik <strong>✂ Crop</strong> pada tiap gambar untuk memastikan framing pas di mockup feed (1080×1350).
                       </span>
                     </span>
-                    <span className="font-semibold px-2 py-0.5 rounded bg-gray-200 text-gray-800 shrink-0">
-                      {form.gallery.length} foto
-                    </span>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <span className="font-mono text-[10px] font-bold px-2 py-0.5 rounded bg-amber-100 text-amber-900 border border-amber-300">
+                        Format Utama: 1080 × 1350 (4:5)
+                      </span>
+                      <span className="font-semibold px-2 py-0.5 rounded bg-gray-200 text-gray-800 shrink-0">
+                        {form.gallery.length} foto
+                      </span>
+                    </div>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-1">
@@ -2476,7 +2826,7 @@ function ProjectForm({
                           onDragEnter={(e) => handleGalleryDragEnter(e, idx)}
                           onDragOver={(e) => e.preventDefault()}
                           onDragEnd={handleGalleryDragEnd}
-                          className={`relative group border rounded-lg overflow-hidden flex flex-col justify-between cursor-grab active:cursor-grabbing transition-all ${
+                          className={`relative group border rounded-xl overflow-hidden flex flex-col justify-between cursor-grab active:cursor-grabbing transition-all ${
                             draggedGalleryIdx === idx
                               ? "opacity-40 scale-95 border-amber-500 shadow-inner"
                               : "hover:shadow-md hover:border-black"
@@ -2489,8 +2839,8 @@ function ProjectForm({
                           }}
                         >
                           {/* Image Box */}
-                          <div className="w-full h-40 bg-gray-50 flex items-center justify-center p-2 overflow-hidden relative">
-                            <img
+                          <div className="w-full h-44 bg-stone-100 flex items-center justify-center p-2 overflow-hidden relative">
+                            <SafeImage
                               src={imgUrl}
                               alt={`Galeri ${idx + 1}`}
                               className="w-full h-full object-contain pointer-events-none drop-shadow-xs"
@@ -2516,16 +2866,30 @@ function ProjectForm({
                             >
                               ×
                             </button>
+
+                            {/* Prominent Crop Button */}
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                handleOpenCropForGallery(idx)
+                              }}
+                              className="absolute bottom-2 right-2 bg-amber-500 hover:bg-amber-400 text-black text-[11px] font-mono font-bold px-3 py-1.5 rounded-md shadow-md flex items-center gap-1.5 cursor-pointer transition-all hover:scale-105 z-10"
+                              title="Buka pemotong gambar interaktif (1080x1350 untuk Feed)"
+                            >
+                              <span>✂</span>
+                              <span>Crop (1080×1350)</span>
+                            </button>
                           </div>
 
                           {/* Editable Title & Caption Inputs */}
                           <div
-                            className="p-2.5 bg-[#FAFAFA] flex flex-col gap-1.5 border-t"
+                            className="p-3 bg-[#FAFAFA] flex flex-col gap-2 border-t"
                             style={{ borderColor: "var(--color-border-light)" }}
                           >
                             <div>
                               <label className="font-mono text-[9px] uppercase tracking-wider text-gray-500 font-semibold block mb-0.5">
-                                Judul Visual (Opsional):
+                                Judul Slide (Tampil di sebelah mockup saat slide aktif):
                               </label>
                               <input
                                 type="text"
@@ -2538,7 +2902,7 @@ function ProjectForm({
                                     e.target.value,
                                   )
                                 }
-                                className="w-full px-2 py-1 text-xs border rounded outline-none"
+                                className="w-full px-2.5 py-1.5 text-xs border rounded outline-none"
                                 style={{
                                   borderColor: "var(--color-border)",
                                   backgroundColor: "#FFFFFF",
@@ -2548,7 +2912,7 @@ function ProjectForm({
                             </div>
                             <div>
                               <label className="font-mono text-[9px] uppercase tracking-wider text-gray-500 font-semibold block mb-0.5">
-                                Keterangan Singkat (Maks 1 Kalimat):
+                                Keterangan Slide (Teks penjelasan dinamis per-slide):
                               </label>
                               <input
                                 type="text"
@@ -2702,6 +3066,18 @@ function ProjectForm({
           </div>
         </div>
       </form>
+
+      {/* Image Cropper Modal */}
+      {cropModal.isOpen && (
+        <ImageCropperModal
+          imageUrl={cropModal.imageUrl}
+          title={cropModal.title}
+          subtitle={cropModal.subtitle}
+          initialAspectRatio={cropModal.aspectRatio}
+          onCropComplete={handleCropComplete}
+          onClose={() => setCropModal((prev) => ({ ...prev, isOpen: false }))}
+        />
+      )}
     </div>
   )
 }

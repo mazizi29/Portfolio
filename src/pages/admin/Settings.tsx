@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react"
 import AdminLayout from "@/layouts/admin/AdminLayout"
+import SafeImage from "@/components/common/SafeImage"
 import { getSupabaseClient } from "@/lib/supabase"
 import { uploadImage } from "@/lib/upload"
 
@@ -16,9 +17,9 @@ export default function Settings() {
     // Profile (profiles table)
     profile_id: "",
     display_name: "Muhammad Azizi Abdillah",
-    role_title: "Informatics Student & UI/UX Designer",
+    role_title: "Creative Visual | Desain Grafis, Fotografi & Video",
     intro:
-      "Mahasiswa Informatika Universitas Nahdlatul Ulama’ Yogyakarta yang aktif mendalami UI/UX Design dan Front-End Development. Memiliki latar belakang multimedia yang membentuk pemahaman visual yang kuat — dari perancangan antarmuka hingga implementasi kode yang fungsional. Terbiasa bekerja secara terstruktur, kolaboratif, serta berorientasi pada kemudahan pengguna.",
+      "Creative visual dari Yogyakarta dengan latar belakang multimedia. Berfokus pada Desain Grafis, Fotografi, dan Video Editing — menghadirkan karya visual yang bercerita dan berdampak melalui Layar Putih Creative Studio.",
     location: "Yogyakarta, Indonesia",
     availability: "open",
     home_image_url: "/pas_foto.jpg",
@@ -26,9 +27,9 @@ export default function Settings() {
 
     // Site Settings (site_settings table)
     site_title: "Portfolio",
-    site_tagline: "Crafting Digital Products with Joy.",
+    site_tagline: "Creating Visual Stories | with Purpose.",
     meta_description:
-      "Portofolio UI/UX Designer & Front-End Developer Muhammad Azizi Abdillah. Mahasiswa Informatika UNU Yogyakarta.",
+      "Portofolio kreatif Muhammad Azizi Abdillah — Desain Grafis, Fotografi & Video Editing. Layar Putih Creative Studio.",
     contact_email: "aziziabdillah01@gmail.com",
   })
 
@@ -64,15 +65,22 @@ export default function Settings() {
         dEmail = profRes.data.email || dEmail
 
         if (profRes.data.portrait_url) {
-          if (profRes.data.portrait_url.startsWith("{")) {
+          const rawPortrait = (profRes.data.portrait_url || "").trim()
+          if (rawPortrait.startsWith("{")) {
             try {
-              const parsed = JSON.parse(profRes.data.portrait_url)
-              homeImg = parsed.home || homeImg
-              aboutImg = parsed.about || aboutImg
-            } catch (e) {}
-          } else {
-            homeImg = profRes.data.portrait_url
-            aboutImg = profRes.data.portrait_url
+              const parsed = JSON.parse(rawPortrait)
+              if (parsed && typeof parsed === "object") {
+                homeImg = parsed.home || homeImg
+                aboutImg = parsed.about || aboutImg
+              }
+            } catch (e) {
+              console.warn("[Settings] Gagal parse portrait_url JSON:", e)
+              homeImg = rawPortrait
+              aboutImg = rawPortrait
+            }
+          } else if (rawPortrait) {
+            homeImg = rawPortrait
+            aboutImg = rawPortrait
           }
         }
       }
@@ -146,7 +154,7 @@ export default function Settings() {
 
       // 1. Save Profile
       if (form.profile_id) {
-        await supabase
+        const { error: profError } = await supabase
           .from("profiles")
           .update({
             display_name: form.display_name,
@@ -159,8 +167,10 @@ export default function Settings() {
             updated_at: new Date().toISOString(),
           })
           .eq("id", form.profile_id)
+
+        if (profError) throw profError
       } else {
-        const { data: newProf } = await supabase
+        const { data: newProf, error: profError } = await supabase
           .from("profiles")
           .insert({
             display_name: form.display_name,
@@ -174,21 +184,26 @@ export default function Settings() {
           .select()
           .single()
 
+        if (profError) throw profError
         if (newProf) {
           setForm((prev) => ({ ...prev, profile_id: newProf.id }))
         }
       }
 
       // 2. Save Site Settings
-      await supabase.from("site_settings").upsert({
-        id: 1,
-        site_title: form.site_title,
-        site_tagline: form.site_tagline,
-        meta_description: form.meta_description,
-        open_internship: form.availability === "open",
-        contact_email: form.contact_email,
-        updated_at: new Date().toISOString(),
-      })
+      const { error: settingsError } = await supabase
+        .from("site_settings")
+        .upsert({
+          id: 1,
+          site_title: form.site_title,
+          site_tagline: form.site_tagline,
+          meta_description: form.meta_description,
+          open_internship: form.availability === "open",
+          contact_email: form.contact_email,
+          updated_at: new Date().toISOString(),
+        })
+
+      if (settingsError) throw settingsError
 
       setSaved(true)
       setTimeout(() => setSaved(false), 3000)
@@ -308,7 +323,7 @@ export default function Settings() {
                     onChange={(e) =>
                       setForm({ ...form, role_title: e.target.value })
                     }
-                    placeholder="Mahasiswa Informatika | UI/UX & Front-End"
+                    placeholder="Creative Visual | Desain Grafis, Fotografi & Video"
                     className="px-3.5 py-2.5 text-sm border bg-transparent outline-none"
                     style={{
                       borderColor: "var(--color-border)",
@@ -337,7 +352,7 @@ export default function Settings() {
                     onChange={(e) =>
                       setForm({ ...form, site_tagline: e.target.value })
                     }
-                    placeholder="Crafting Digital Products with Joy."
+                    placeholder="Creating Visual Stories | with Purpose."
                     className="px-3.5 py-2.5 text-sm border bg-transparent outline-none font-medium"
                     style={{
                       borderColor: "var(--color-border)",
@@ -395,7 +410,7 @@ export default function Settings() {
                       borderRadius: "var(--radius-sm)",
                     }}
                   >
-                    <option value="open">● Terbuka untuk Magang</option>
+                    <option value="open">● Terbuka untuk Kolaborasi / Proyek</option>
                     <option value="freelance">
                       ● Tersedia untuk Freelance
                     </option>
@@ -576,9 +591,10 @@ export default function Settings() {
                     }}
                   >
                     {form.home_image_url ? (
-                      <img
+                      <SafeImage
                         src={form.home_image_url}
                         alt="Hero"
+                        fallbackSrc="/pas_foto.jpg"
                         className="w-full h-full object-cover"
                       />
                     ) : (
@@ -650,9 +666,10 @@ export default function Settings() {
                     }}
                   >
                     {form.about_image_url ? (
-                      <img
+                      <SafeImage
                         src={form.about_image_url}
                         alt="About"
+                        fallbackSrc="/pas_foto.jpg"
                         className="w-full h-full object-cover"
                       />
                     ) : (

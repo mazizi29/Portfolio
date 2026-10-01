@@ -32,4 +32,7 @@ generate-cover.*
 /Sosial Media Post/
 /scratch/
 AUDIT_*.md
+PortFolio_Fauzi.pdf
+*.pdf
+!public/cv.pdf
 public/cover-sosial-media-post.svg

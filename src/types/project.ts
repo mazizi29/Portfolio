@@ -1,7 +1,7 @@
 export const MAIN_CATEGORIES = [
-  "Engineering & Tech",
-  "UI/UX & Product Design",
   "Creative & Multimedia",
+  "UI/UX & Product Design",
+  "Engineering & Tech",
 ] as const
 
 export type MainCategory = typeof MAIN_CATEGORIES[number]
@@ -98,32 +98,74 @@ export const CASE_STUDY_PRESETS: {
     sections: [],
   },
   {
-    name: "Engineering / Software App",
-    category: "Engineering & Tech",
+    name: "Branding & Visual Identity (Desain Grafis)",
+    category: "Creative & Multimedia",
     sections: [
       {
-        label: "Overview",
-        sublabel: "Gambaran Umum & Tujuan",
+        label: "Creative Brief",
+        sublabel: "Konsep & Latar Belakang Klien",
         placeholder:
-          "Jelaskan latar belakang, arsitektur, dan tujuan sistem atau aplikasi ini dibangun...",
+          "Jelaskan visi merek, target audiens, dan pesan utama yang ingin disampaikan...",
       },
       {
-        label: "Problem & Architecture",
-        sublabel: "Tantangan & Arsitektur Teknis",
+        label: "Visual Exploration",
+        sublabel: "Eksplorasi Visual & Filosofi",
         placeholder:
-          "Contoh format poin:\n- Bottleneck performa pemrosesan data manual\n- Kebutuhan integritas data real-time\n- Skalabilitas sistem dan keamanan otentikasi",
+          "Contoh format poin:\n- Penentuan logogram dengan makna kesederhanaan dan profesionalitas\n- Pemilihan palet warna primer dan sekunder yang kontras namun elegan\n- Sistem tipografi modern untuk media cetak dan digital",
       },
       {
-        label: "Key Features & Execution",
-        sublabel: "Fitur Utama & Eksekusi",
+        label: "Deliverables & Application",
+        sublabel: "Penerapan & Hasil Desain",
         placeholder:
-          "Contoh format poin:\n- Otomasi hashing dan verifikasi berkas\n- Dashboard pemantauan analitik terintegrasi\n- API modular dengan response time di bawah 100ms",
+          "Contoh format poin:\n- Brand guidelines lengkap (logo usage, color codes, font rules)\n- Desain stasioneri, kartu nama, packaging, dan media sosial\n- Landing page portofolio studio dengan identitas baru yang kohesif",
+      },
+    ],
+  },
+  {
+    name: "Photography Showcase (Fotografi)",
+    category: "Creative & Multimedia",
+    sections: [
+      {
+        label: "Concept & Context",
+        sublabel: "Konsep & Latar Belakang Foto",
+        placeholder:
+          "Jelaskan momen, tema sesi foto, dan tujuan proyek fotografi ini...",
       },
       {
-        label: "Result & Impact",
-        sublabel: "Hasil, Metrik & Solusi",
+        label: "Style & Execution",
+        sublabel: "Gaya Visual, Lighting & Komposisi",
         placeholder:
-          "Contoh format poin:\n- Efisiensi waktu pemrosesan meningkat hingga 65%\n- Dokumentasi data menjadi lebih terstruktur dan audit-ready\n- Berhasil diuji coba pada lingkungan praktikum/produksi",
+          "Contoh format poin:\n- Memanfaatkan natural light saat golden hour untuk nuansa hangat\n- Eksplorasi sudut pandang unik dan depth of field sempit\n- Komposisi rule of thirds dan framing alami subjek",
+      },
+      {
+        label: "Post-Processing & Output",
+        sublabel: "Retouching & Kurasi Proyek",
+        placeholder:
+          "Contoh format poin:\n- Color grading presisi dengan Adobe Lightroom & Photoshop\n- Retouching kulit dan pencahayaan tanpa menghilangkan tekstur alami\n- Kurasi seri foto terpilih untuk publikasi komersial/editorial",
+      },
+    ],
+  },
+  {
+    name: "Commercial Videography & Editing (Video)",
+    category: "Creative & Multimedia",
+    sections: [
+      {
+        label: "Story & Concept",
+        sublabel: "Konsep Cerita & Arahan Visual",
+        placeholder:
+          "Jelaskan pesan video, tone & mood, storyboard, dan target emosi penonton...",
+      },
+      {
+        label: "Production & Shooting",
+        sublabel: "Proses Produksi & Sinematografi",
+        placeholder:
+          "Contoh format poin:\n- Penggunaan lighting high-key untuk kesan bersih dan dinamis\n- Komposisi framing sinematik dan pergerakan kamera stabil\n- Pengambilan footage B-roll detail produk dan atmosfer lokasi",
+      },
+      {
+        label: "Post-Production & Delivery",
+        sublabel: "Editing, Color Grading & Sound",
+        placeholder:
+          "Contoh format poin:\n- Pacing editing dinamis selaras dengan beat musik latar\n- Color grading khusus untuk menghasilkan tone warna khas dan dramatis\n- Sound design dan mixing audio jernih untuk media sosial dan promosi",
       },
     ],
   },
@@ -158,74 +200,32 @@ export const CASE_STUDY_PRESETS: {
     ],
   },
   {
-    name: "Branding & Visual Identity",
-    category: "Creative & Multimedia",
+    name: "Engineering / Software App",
+    category: "Engineering & Tech",
     sections: [
       {
-        label: "Creative Brief",
-        sublabel: "Konsep & Latar Belakang Klien",
+        label: "Overview",
+        sublabel: "Gambaran Umum & Tujuan",
         placeholder:
-          "Jelaskan visi merek, target audiens, dan pesan utama yang ingin disampaikan...",
+          "Jelaskan latar belakang, arsitektur, dan tujuan sistem atau aplikasi ini dibangun...",
       },
       {
-        label: "Visual Exploration",
-        sublabel: "Eksplorasi Visual & Filosofi",
+        label: "Problem & Architecture",
+        sublabel: "Tantangan & Arsitektur Teknis",
         placeholder:
-          "Contoh format poin:\n- Penentuan logogram dengan makna kesederhanaan dan profesionalitas\n- Pemilihan palet warna primer dan sekunder yang kontras namun elegan\n- Sistem tipografi modern untuk media cetak dan digital",
+          "Contoh format poin:\n- Bottleneck performa pemrosesan data manual\n- Kebutuhan integritas data real-time\n- Skalabilitas sistem dan keamanan otentikasi",
       },
       {
-        label: "Deliverables & Application",
-        sublabel: "Penerapan & Hasil Desain",
+        label: "Key Features & Execution",
+        sublabel: "Fitur Utama & Eksekusi",
         placeholder:
-          "Contoh format poin:\n- Brand guidelines lengkap (logo usage, color codes, font rules)\n- Desain stasioneri, kartu nama, packaging, dan media sosial\n- Landing page portofolio studio dengan identitas baru yang kohesif",
-      },
-    ],
-  },
-  {
-    name: "Commercial Videography & Editing",
-    category: "Creative & Multimedia",
-    sections: [
-      {
-        label: "Story & Concept",
-        sublabel: "Konsep Cerita & Arahan Visual",
-        placeholder:
-          "Jelaskan pesan video, tone & mood, storyboard, dan target emosi penonton...",
+          "Contoh format poin:\n- Otomasi hashing dan verifikasi berkas\n- Dashboard pemantauan analitik terintegrasi\n- API modular dengan response time di bawah 100ms",
       },
       {
-        label: "Production & Shooting",
-        sublabel: "Proses Produksi & Sinematografi",
+        label: "Result & Impact",
+        sublabel: "Hasil, Metrik & Solusi",
         placeholder:
-          "Contoh format poin:\n- Penggunaan lighting high-key untuk kesan bersih dan dinamis\n- Komposisi framing sinematik dan pergerakan kamera stabil\n- Pengambilan footage B-roll detail produk dan atmosfer lokasi",
-      },
-      {
-        label: "Post-Production & Delivery",
-        sublabel: "Editing, Color Grading & Sound",
-        placeholder:
-          "Contoh format poin:\n- Pacing editing dinamis selaras dengan beat musik latar\n- Color grading khusus untuk menghasilkan tone warna khas dan dramatis\n- Sound design dan mixing audio jernih untuk media sosial dan promosi",
-      },
-    ],
-  },
-  {
-    name: "Photography Showcase",
-    category: "Creative & Multimedia",
-    sections: [
-      {
-        label: "Concept & Context",
-        sublabel: "Konsep & Latar Belakang Foto",
-        placeholder:
-          "Jelaskan momen, tema sesi foto, dan tujuan proyek fotografi ini...",
-      },
-      {
-        label: "Style & Execution",
-        sublabel: "Gaya Visual, Lighting & Komposisi",
-        placeholder:
-          "Contoh format poin:\n- Memanfaatkan natural light saat golden hour untuk nuansa hangat\n- Eksplorasi sudut pandang unik dan depth of field sempit\n- Komposisi rule of thirds dan framing alami subjek",
-      },
-      {
-        label: "Post-Processing & Output",
-        sublabel: "Retouching & Kurasi Proyek",
-        placeholder:
-          "Contoh format poin:\n- Color grading presisi dengan Adobe Lightroom & Photoshop\n- Retouching kulit dan pencahayaan tanpa menghilangkan tekstur alami\n- Kurasi seri foto terpilih untuk publikasi komersial/editorial",
+          "Contoh format poin:\n- Efisiensi waktu pemrosesan meningkat hingga 65%\n- Dokumentasi data menjadi lebih terstruktur dan audit-ready\n- Berhasil diuji coba pada lingkungan praktikum/produksi",
       },
     ],
   },
@@ -236,7 +236,7 @@ export const CASE_STUDY_PRESETS: {
  * into one of the 3 canonical main categories.
  */
 export function normalizeCategory(rawCategory?: string): MainCategory {
-  if (!rawCategory) return "Engineering & Tech"
+  if (!rawCategory) return "Creative & Multimedia"
 
   const trimmed = rawCategory.trim()
   if (MAIN_CATEGORIES.includes(trimmed as MainCategory)) {
@@ -285,16 +285,25 @@ export function getYouTubeEmbedUrl(url?: string): string | null {
   if (!url) return null
   const clean = url.trim()
 
+  // Already an embed URL
+  if (clean.includes("/embed/")) {
+    const embedIdMatch = clean.match(/\/embed\/([^"&?\/\s]{11})/i)
+    if (embedIdMatch && embedIdMatch[1]) {
+      return `https://www.youtube-nocookie.com/embed/${embedIdMatch[1]}`
+    }
+    return clean
+  }
+
   // YouTube watch / share link
   const watchMatch = clean.match(
-    /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i,
+    /(?:(?:youtube(?:-nocookie)?\.com)\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i,
   )
   if (watchMatch && watchMatch[1]) {
     return `https://www.youtube-nocookie.com/embed/${watchMatch[1]}`
   }
 
   // YouTube Shorts
-  const shortsMatch = clean.match(/youtube\.com\/shorts\/([^"&?\/\s]{11})/i)
+  const shortsMatch = clean.match(/(?:youtube(?:-nocookie)?\.com)\/shorts\/([^"&?\/\s]{11})/i)
   if (shortsMatch && shortsMatch[1]) {
     return `https://www.youtube-nocookie.com/embed/${shortsMatch[1]}`
   }
@@ -507,6 +516,21 @@ export function normalizeGallery(
     }
   }
 
+  // Fallback: If raw gallery was empty but metaMap (from __gmeta: tags) has items
+  if (results.length === 0 && Object.keys(metaMap).length > 0) {
+    const indices = Object.keys(metaMap).map(Number).sort((a, b) => a - b)
+    for (const idx of indices) {
+      const meta = metaMap[idx]
+      results.push({
+        id: `img-meta-${idx + 1}`,
+        image_url: "",
+        title: meta.title || "",
+        caption: meta.caption || "",
+        sort_order: idx + 1,
+      })
+    }
+  }
+
   return results
 }
 
@@ -610,13 +634,87 @@ export function getProjectLinks(
   return links
 }
 
+export const DISPLAY_MODES = [
+  {
+    id: "auto",
+    label: "Auto (Sesuai Subkategori)",
+    description:
+      "Otomatis memilih tampilan terbaik berdasarkan subkategori karya (Instagram, Fotografi, Reels, Logo Grid, atau Video)",
+  },
+  {
+    id: "standard",
+    label: "Standard (Landscape / Cover 16:9)",
+    description:
+      "Cover lebar atau pemutar video YouTube 16:9 tradisional dengan fitur lightbox zoom",
+  },
+  {
+    id: "instagram",
+    label: "Instagram Post / Carousel",
+    description:
+      "Mockup feed Instagram autentik dengan slide multi-gambar dan ringkasan narasi (tanpa cover)",
+  },
+  {
+    id: "photography",
+    label: "Galeri Fotografi (Auto-slide & Rasio Bebas)",
+    description:
+      "Showcase interaktif koleksi foto dalam rasio proporsional aslinya dengan fitur zoom (tanpa cover)",
+  },
+  {
+    id: "vertical_video",
+    label: "Vertical Video 9:16 (Reels/TikTok)",
+    description:
+      "Mockup smartphone vertikal untuk video reels, shorts, dan konten mobile (tanpa cover)",
+  },
+  {
+    id: "logo_matrix",
+    label: "Logo Matrix Grid",
+    description:
+      "Grid showcase papan logo dan identitas visual dengan pop-up modal interaktif (tanpa cover)",
+  },
+] as const
+
+export type DisplayMode = (typeof DISPLAY_MODES)[number]["id"]
+
+export const ROLE_SUGGESTIONS = [
+  "Brand Designer & Graphic Specialist",
+  "Lead Graphic Designer",
+  "Videographer & Video Editor",
+  "Director of Photography (DoP) & Editor",
+  "Lead Photographer & Colorist",
+  "Commercial Photographer",
+  "Motion Graphic Artist & Animator",
+  "Creative Producer & Content Strategist",
+  "UI/UX Designer & Product Specialist",
+  "Front-End Developer & UI Engineer",
+  "Full-Stack Developer",
+  "System Architect & Backend Developer",
+]
+
 /**
- * Encodes smart links and gallery metadata into tags array so they persist safely even if custom columns do not exist in DB.
+ * Extracts display mode from project tags or falls back to 'auto'.
+ */
+export function getProjectDisplayMode(project?: Partial<Project> | null): DisplayMode {
+  if (!project || !Array.isArray(project.tags)) return "auto"
+  const tag = project.tags.find(
+    (t) => typeof t === "string" && t.startsWith("__display:"),
+  )
+  if (tag) {
+    const mode = tag.slice(10).trim() as DisplayMode
+    if (DISPLAY_MODES.some((dm) => dm.id === mode)) {
+      return mode
+    }
+  }
+  return "auto"
+}
+
+/**
+ * Encodes smart links, display mode, and gallery metadata into tags array so they persist safely even if custom columns do not exist in DB.
  */
 export function encodeProjectTags(
   tags: string[],
   links: Partial<ProjectLinks>,
   gallery?: (GalleryItem | any)[],
+  displayMode?: DisplayMode,
 ): string[] {
   const cleanTags = tags.filter(
     (t) =>
@@ -628,8 +726,13 @@ export function encodeProjectTags(
       !t.startsWith("__github:") &&
       !t.startsWith("__live:") &&
       !t.startsWith("__gmeta:") &&
-      !t.startsWith("__gallery_meta:"),
+      !t.startsWith("__gallery_meta:") &&
+      !t.startsWith("__display:"),
   )
+
+  if (displayMode && displayMode !== "auto") {
+    cleanTags.push(`__display:${displayMode}`)
+  }
 
   if (links.video_url && links.video_url.trim()) {
     cleanTags.push(`__video:${links.video_url.trim()}`)
@@ -680,6 +783,7 @@ export function getCleanPublicTags(tags?: any): string[] {
       !t.startsWith("__github:") &&
       !t.startsWith("__live:") &&
       !t.startsWith("__gmeta:") &&
-      !t.startsWith("__gallery_meta:"),
+      !t.startsWith("__gallery_meta:") &&
+      !t.startsWith("__display:"),
   )
 }

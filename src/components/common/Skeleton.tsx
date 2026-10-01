@@ -246,3 +246,38 @@ export function ProjectDetailSkeleton() {
     </PublicLayout>
   )
 }
+
+export function PageLoadingFallback() {
+  return (
+    <div
+      className="min-h-screen flex items-center justify-center font-mono text-xs"
+      style={{
+        backgroundColor: "var(--color-paper)",
+        color: "var(--color-muted)",
+      }}
+    >
+      <div className="flex flex-col items-center gap-3">
+        <span className="w-5 h-5 border-2 border-black/20 border-t-black rounded-full animate-spin" />
+        <span>Memuat halaman...</span>
+      </div>
+    </div>
+  )
+}
+
+export function AdminSkeleton() {
+  return (
+    <div
+      className="min-h-screen flex items-center justify-center font-mono text-xs"
+      style={{
+        backgroundColor: "#F0F0EE",
+        color: "var(--color-muted)",
+      }}
+    >
+      <div className="flex flex-col items-center gap-3">
+        <span className="w-5 h-5 border-2 border-black/20 border-t-black rounded-full animate-spin" />
+        <span>Memuat modul admin...</span>
+      </div>
+    </div>
+  )
+}
+

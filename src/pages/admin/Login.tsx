@@ -1,21 +1,27 @@
 import { useState } from "react"
-import { useNavigate } from "react-router-dom"
+import { useNavigate, Link } from "react-router-dom"
 import { useAuth } from "@/context/AuthContext"
 
 export default function Login() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
+  const [loading, setLoading] = useState(false)
   const { login } = useAuth()
   const navigate = useNavigate()
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    const ok = login(email, password)
-    if (ok) {
+    setError("")
+    setLoading(true)
+
+    const res = await login(email, password)
+    setLoading(false)
+
+    if (res.success) {
       navigate("/admin/dashboard")
     } else {
-      setError("Invalid credentials.")
+      setError(res.error || "Email atau kata sandi tidak valid.")
     }
   }
 
@@ -25,12 +31,12 @@ export default function Login() {
       style={{ backgroundColor: "var(--color-paper)" }}
     >
       <div style={{ width: "100%", maxWidth: "380px" }}>
-        <div className="mb-12 text-center">
+        <div className="mb-10 text-center">
           <p
             className="font-mono text-xs tracking-widest uppercase mb-2"
             style={{ color: "var(--color-muted)", letterSpacing: "0.14em" }}
           >
-            Portfolio
+            Portfolio CMS
           </p>
           <h1
             className="font-sans font-semibold text-2xl"
@@ -52,9 +58,10 @@ export default function Login() {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="admin@portfolio.id"
+              placeholder="nama@domain.com"
               required
-              className="w-full px-4 py-3 text-sm border bg-transparent outline-none"
+              disabled={loading}
+              className="w-full px-4 py-3 text-sm border bg-transparent outline-none disabled:opacity-50"
               style={{
                 borderColor: "var(--color-border)",
                 color: "var(--color-ink)",
@@ -68,7 +75,7 @@ export default function Login() {
               className="font-mono text-xs tracking-widest uppercase"
               style={{ color: "var(--color-muted)", letterSpacing: "0.1em" }}
             >
-              Password
+              Kata Sandi
             </label>
             <input
               type="password"
@@ -76,7 +83,8 @@ export default function Login() {
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
               required
-              className="w-full px-4 py-3 text-sm border bg-transparent outline-none"
+              disabled={loading}
+              className="w-full px-4 py-3 text-sm border bg-transparent outline-none disabled:opacity-50"
               style={{
                 borderColor: "var(--color-border)",
                 color: "var(--color-ink)",
@@ -87,14 +95,22 @@ export default function Login() {
           </div>
 
           {error && (
-            <p className="text-xs" style={{ color: "#c0392b" }}>
+            <div
+              className="p-3 border rounded text-xs"
+              style={{
+                borderColor: "#fca5a5",
+                backgroundColor: "#fef2f2",
+                color: "#b91c1c",
+              }}
+            >
               {error}
-            </p>
+            </div>
           )}
 
           <button
             type="submit"
-            className="w-full py-3.5 text-xs font-semibold tracking-widest uppercase mt-2 transition-opacity hover:opacity-80"
+            disabled={loading}
+            className="w-full py-3.5 text-xs font-semibold tracking-widest uppercase mt-2 transition-opacity hover:opacity-85 disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer"
             style={{
               backgroundColor: "var(--color-ink)",
               color: "var(--color-paper)",
@@ -102,25 +118,34 @@ export default function Login() {
               borderRadius: "var(--radius-sm)",
             }}
           >
-            Sign In
-          </button>
-
-          <button
-            type="button"
-            className="text-xs text-center link-underline self-center"
-            style={{ color: "var(--color-muted)" }}
-          >
-            Forgot password
+            {loading ? (
+              <>
+                <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                Memproses...
+              </>
+            ) : (
+              "Sign In"
+            )}
           </button>
         </form>
 
-        <p
-          className="text-xs text-center mt-12"
-          style={{ color: "var(--color-border)" }}
-        >
-          admin@portfolio.id / admin123
-        </p>
+        <div className="text-center mt-10">
+          <Link
+            to="/"
+            className="text-xs font-mono link-underline"
+            style={{ color: "var(--color-muted)" }}
+          >
+            ← Kembali ke Beranda
+          </Link>
+          <p
+            className="text-[11px] font-mono mt-6"
+            style={{ color: "var(--color-muted)", opacity: 0.7 }}
+          >
+            Demo: admin@portfolio.id / admin123
+          </p>
+        </div>
       </div>
     </div>
   )
 }
+

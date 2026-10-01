@@ -21,7 +21,7 @@ export default function Footer() {
             className="font-mono text-xs"
             style={{ color: "var(--color-muted)", letterSpacing: "0.06em" }}
           >
-            Mahasiswa Informatika · UI/UX &amp; Front-End
+            Creative Visual · Desain Grafis, Fotografi &amp; Video
           </p>
         </div>
 

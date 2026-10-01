@@ -2,6 +2,7 @@ import { useState, useEffect } from "react"
 import { Link } from "react-router-dom"
 import PublicLayout from "@/layouts/public/PublicLayout"
 import { HomeSkeleton } from "@/components/common/Skeleton"
+import SafeImage from "@/components/common/SafeImage"
 import { getSupabaseClient } from "@/lib/supabase"
 import {
   projects as mockProjects,
@@ -33,30 +34,38 @@ export default function Home() {
 
   const fetchData = async () => {
     try {
-      const [profRes, setRes, projRes, expRes, skillRes, countRes] = await Promise.all([
-        supabase.from("profiles").select("*").limit(1).single(),
-        supabase.from("site_settings").select("*").limit(1).single(),
-        supabase
-          .from("projects")
-          .select("*")
-          .eq("featured", true)
-          .order("sort_order", { ascending: true }),
-        supabase
-          .from("experience")
-          .select("*")
-          .order("start_date", { ascending: true }),
-        supabase
-          .from("skills")
-          .select("*")
-          .order("order_index", { ascending: true }),
-        supabase
-          .from("projects")
-          .select("id", { count: "exact", head: true })
-          .eq("status", "published"),
-      ])
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error("Supabase fetch timeout")), 2500),
+      )
 
-      if (profRes.data) setProfile(profRes.data)
-      if (setRes.data) setSettings(setRes.data)
+      const [profRes, setRes, projRes, expRes, skillRes, countRes]: any =
+        await Promise.race([
+          Promise.all([
+            supabase.from("profiles").select("*").limit(1).single(),
+            supabase.from("site_settings").select("*").limit(1).single(),
+            supabase
+              .from("projects")
+              .select("*")
+              .eq("featured", true)
+              .order("sort_order", { ascending: true }),
+            supabase
+              .from("experience")
+              .select("*")
+              .order("start_date", { ascending: true }),
+            supabase
+              .from("skills")
+              .select("*")
+              .order("order_index", { ascending: true }),
+            supabase
+              .from("projects")
+              .select("id", { count: "exact", head: true })
+              .eq("status", "published"),
+          ]),
+          timeoutPromise,
+        ])
+
+      if (profRes?.data) setProfile(profRes.data)
+      if (setRes?.data) setSettings(setRes.data)
       if (typeof countRes.count === "number" && countRes.count > 0) {
         setTotalProjects(countRes.count)
       }
@@ -130,26 +139,26 @@ export default function Home() {
     }
   }
 
-  // Tagline Opsi A: "Crafting Digital Products with Joy."
+  // Tagline: "Creating Visual Stories | with Purpose."
   const titleText =
-    settings?.site_tagline || "Crafting Digital Products | with Joy."
+    settings?.site_tagline || "Creating Visual Stories | with Purpose."
   const titleLines = titleText.split("\n")
 
   const availabilityText =
-    profile?.availability === "open"
-      ? "Terbuka untuk Magang"
+    profile?.availability === "busy"
+      ? "Sedang Tidak Tersedia"
       : profile?.availability === "freelance"
         ? "Tersedia untuk Freelance"
-        : "Sedang Tidak Tersedia"
+        : "Terbuka untuk Kolaborasi"
 
   const isAvailable =
-    profile?.availability === "open" || profile?.availability === "freelance"
+    profile?.availability !== "busy"
 
   // Dynamic floating badges
   const defaultBadges = [
-    { id: "b1", name: "UI/UX Design" },
-    { id: "b2", name: "Front-End Web" },
-    { id: "b3", name: "Visual Design" },
+    { id: "b1", name: "Desain Grafis" },
+    { id: "b2", name: "Fotografi" },
+    { id: "b3", name: "Video Editing" },
   ]
   const displayBadges =
     hardSkills.length > 0 ? hardSkills.slice(0, 3) : defaultBadges
@@ -328,41 +337,41 @@ export default function Home() {
                     className="font-sans font-bold text-xl md:text-2xl mb-0.5"
                     style={{ color: "var(--color-ink)" }}
                   >
-                    Informatika
-                  </p>
-                  <p
-                    className="font-mono text-xs"
-                    style={{ color: "var(--color-muted)" }}
-                  >
-                    UNU Yogyakarta
-                  </p>
-                </div>
-                <div>
-                  <p
-                    className="font-sans font-bold text-xl md:text-2xl mb-0.5"
-                    style={{ color: "var(--color-ink)" }}
-                  >
-                    3+
-                  </p>
-                  <p
-                    className="font-mono text-xs"
-                    style={{ color: "var(--color-muted)" }}
-                  >
-                    Proyek Digital &amp; Visual Design
-                  </p>
-                </div>
-                <div>
-                  <p
-                    className="font-sans font-bold text-xl md:text-2xl mb-0.5"
-                    style={{ color: "var(--color-ink)" }}
-                  >
                     3+ Tahun
                   </p>
                   <p
                     className="font-mono text-xs"
                     style={{ color: "var(--color-muted)" }}
                   >
-                    Organisasi &amp; Tim Kreatif
+                    Pengalaman Kreatif
+                  </p>
+                </div>
+                <div>
+                  <p
+                    className="font-sans font-bold text-xl md:text-2xl mb-0.5"
+                    style={{ color: "var(--color-ink)" }}
+                  >
+                    50+
+                  </p>
+                  <p
+                    className="font-mono text-xs"
+                    style={{ color: "var(--color-muted)" }}
+                  >
+                    Karya Visual &amp; Desain
+                  </p>
+                </div>
+                <div>
+                  <p
+                    className="font-sans font-bold text-xl md:text-2xl mb-0.5"
+                    style={{ color: "var(--color-ink)" }}
+                  >
+                    Foto · Video
+                  </p>
+                  <p
+                    className="font-mono text-xs"
+                    style={{ color: "var(--color-muted)" }}
+                  >
+                    Desain &amp; Produksi
                   </p>
                 </div>
               </div>
@@ -384,9 +393,10 @@ export default function Home() {
                     boxShadow: "0 20px 40px rgba(0,0,0,0.06)",
                   }}
                 >
-                  <img
+                  <SafeImage
                     src={heroImage}
                     alt="Muhammad Azizi Abdillah"
+                    fallbackSrc="/pas_foto.jpg"
                     className="w-full h-full object-cover"
                     style={{ objectPosition: "top center" }}
                   />
@@ -578,7 +588,7 @@ export default function Home() {
                 }}
               >
                 {profile?.intro ||
-                  "Mahasiswa Informatika yang aktif mendalami UI/UX Design dan Front-End Development. Memiliki latar belakang multimedia yang membentuk pemahaman visual yang kuat — dari layout hingga interaksi fungsional."}
+                  "Creative visual dari Yogyakarta dengan latar belakang multimedia. Berfokus pada Desain Grafis, Fotografi, dan Video Editing — menghadirkan karya visual yang bercerita dan berdampak melalui Layar Putih Creative Studio."}
               </p>
               <Link
                 to="/about"
@@ -779,7 +789,7 @@ export default function Home() {
                 lineHeight: 0.95,
               }}
             >
-              SIAP BERKONTRIBUSI
+              SIAP BERKREASI
               <br />
               <span
                 style={{
@@ -789,7 +799,7 @@ export default function Home() {
                   fontVariationSettings: '"opsz" 60',
                 }}
               >
-                DALAM TIM ANDA.
+                BERSAMA ANDA.
               </span>
             </h2>
             <p
@@ -799,8 +809,8 @@ export default function Home() {
                 fontFamily: "var(--font-sans)",
               }}
             >
-              Menikmati setiap proses, tumbuh dari setiap tantangan, dan siap
-              memberikan yang terbaik untuk produk digital Anda.
+              Punya proyek desain, sesi foto, atau konten video yang ingin
+              diwujudkan? Mari berdiskusi dan ciptakan sesuatu yang berkesan.
             </p>
             <div className="flex flex-wrap items-center justify-center gap-4">
               <Link
@@ -882,17 +892,11 @@ function ProjectRow({ project, index }: { project: any; index: number }) {
           borderRadius: "var(--radius-md)",
         }}
       >
-        {projectCover ? (
-          <img
-            src={projectCover}
-            alt={project.title}
-            className="project-image w-full h-full object-cover transition-transform duration-500"
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center text-xs font-mono text-gray-400">
-            No Image
-          </div>
-        )}
+        <SafeImage
+          src={projectCover}
+          alt={project.title}
+          className="project-image w-full h-full object-cover transition-transform duration-500"
+        />
       </div>
 
       <div className="flex-1 min-w-0">
@@ -913,6 +917,19 @@ function ProjectRow({ project, index }: { project: any; index: number }) {
               style={{ backgroundColor: "#EAEAE6", color: "var(--color-ink)" }}
             >
               {subcategory}
+            </span>
+          )}
+          {project.role && (
+            <span
+              className="inline-flex items-center gap-1 font-mono text-[10px] font-semibold px-2 py-0.5 rounded border"
+              style={{
+                backgroundColor: "#FFFFFF",
+                borderColor: "var(--color-border)",
+                color: "var(--color-ink)",
+              }}
+            >
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+              {project.role}
             </span>
           )}
           {project.video_url && (

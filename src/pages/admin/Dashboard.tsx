@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react"
 import { Link } from "react-router-dom"
 import AdminLayout from "@/layouts/admin/AdminLayout"
+import SafeImage from "@/components/common/SafeImage"
 import { getSupabaseClient } from "@/lib/supabase"
 import type { Project } from "@/types/project"
 import { getExperienceBadge, sortExperiencesChronological } from "./Experience"
@@ -167,7 +168,7 @@ export default function Dashboard() {
                           }}
                         >
                           {p.cover_url ? (
-                            <img
+                            <SafeImage
                               src={p.cover_url}
                               alt=""
                               className="w-full h-full object-cover"

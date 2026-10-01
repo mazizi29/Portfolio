@@ -17,7 +17,7 @@ export default function AdminSkills() {
   const [adding, setAdding] = useState(false)
 
   const [newName, setNewName] = useState("")
-  const [newCat, setNewCat] = useState("design")
+  const [newCat, setNewCat] = useState("build")
 
   const [draggedId, setDraggedId] = useState<string | null>(null)
 
@@ -81,7 +81,7 @@ export default function AdminSkills() {
     const { error } = await supabase.from("skills").delete().eq("id", id)
     if (error) {
       console.error("Error deleting skill:", error)
-      alert("Gagal menghapus skill.")
+      alert(`Gagal menghapus skill: ${error.message}`)
     } else {
       setSkills((prev) => prev.filter((s) => s.id !== id))
     }
@@ -130,14 +130,17 @@ export default function AdminSkills() {
     const catSkills = skills.filter((s) => s.category === cat)
     try {
       const updates = catSkills.map((s, index) => {
-        // Optimistically update state order_index just in case
         s.order_index = index
         return supabase
           .from("skills")
           .update({ order_index: index })
           .eq("id", s.id)
       })
-      await Promise.all(updates)
+      const results = await Promise.all(updates)
+      const hasError = results.find((r) => r.error)
+      if (hasError) {
+        console.error("Failed to save skill order:", hasError.error)
+      }
     } catch (err) {
       console.error("Failed to save order", err)
     }
@@ -168,7 +171,7 @@ export default function AdminSkills() {
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
             disabled={adding || loading}
-            placeholder="Nama Skill (Cth: UI/UX Design)"
+            placeholder="Nama Skill (Cth: Desain Grafis / Fotografi / Video Editing)"
             className="flex-1 px-4 py-2 text-sm border bg-transparent outline-none disabled:opacity-50"
             style={{
               borderColor: "var(--color-border)",

@@ -34,6 +34,26 @@
   --radius-lg: 8px;
 }
 
+/* Expose design tokens as standard CSS custom properties for use with var() in inline styles */
+:root {
+  --color-ink: #0A0A0A;
+  --color-paper: #F7F7F5;
+  --color-surface: #FFFFFF;
+  --color-muted: #6F6F6F;
+  --color-subtle: #9A9A9A;
+  --color-border: #DCDCDC;
+  --color-border-light: #EBEBEB;
+
+  --font-sans: 'Manrope', ui-sans-serif, system-ui, sans-serif;
+  --font-serif: 'Fraunces', ui-serif, serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  --radius-lg: 8px;
+  --radius-full: 9999px;
+}
+
 *, *::before, *::after {
   box-sizing: border-box;
 }
@@ -48,6 +68,17 @@ body {
   color: var(--color-ink);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Accessibility: Consistent focus-visible ring for keyboard navigation */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--color-ink);
+  outline-offset: 3px;
 }
 
 /* Hide scrollbar by default, show on scroll */
@@ -144,6 +175,47 @@ body {
   animation: skeletonShimmer 1.8s ease-in-out infinite;
 }
 
+/* Spin animation for audio vinyl record */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Subtle glow for status indicators */
+@keyframes pulseGlow {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(1.15);
+  }
+}
+
+.animate-pulse-glow {
+  animation: pulseGlow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Glassmorphism styling for mockups */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.glass-panel-dark {
+  background: rgba(10, 10, 10, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
 /* Accessibility: prefers-reduced-motion */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
@@ -155,6 +227,7 @@ body {
   .animate-bounce,
   .animate-float-slow,
   .animate-pulse,
+  .animate-pulse-glow,
   .skeleton-shimmer {
     animation: none !important;
   }
@@ -165,4 +238,10 @@ body {
   .admin-sidebar {
     transform: translateX(0) !important;
   }
+}
+
+/* ── Logo marquee infinite scroll animation ── */
+@keyframes logo-marquee {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
 }

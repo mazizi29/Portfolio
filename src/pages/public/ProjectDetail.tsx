@@ -3,6 +3,12 @@ import { useParams, Link, Navigate } from "react-router-dom"
 import PublicLayout from "@/layouts/public/PublicLayout"
 import { ProjectDetailSkeleton } from "@/components/common/Skeleton"
 import FormattedContent from "@/components/common/FormattedContent"
+import SafeImage from "@/components/common/SafeImage"
+import InstagramPostMockup, { SlideItem } from "@/components/common/InstagramPostMockup"
+import LaptopMockup from "@/components/common/LaptopMockup"
+import PhoneReelsMockup from "@/components/common/PhoneReelsMockup"
+import LogoMatrixGrid, { LogoItem } from "@/components/common/LogoMatrixGrid"
+import PhotographyShowcase from "@/components/common/PhotographyShowcase"
 import { getSupabaseClient } from "@/lib/supabase"
 import { projects as mockProjects } from "@/data/mockData"
 import {
@@ -12,6 +18,7 @@ import {
   normalizeGallery,
   sortProjectsByOrder,
   getProjectLinks,
+  getProjectDisplayMode,
   getYouTubeEmbedUrl,
   Project,
   GalleryItem,
@@ -141,8 +148,10 @@ export default function ProjectDetail() {
     title?: string
     caption?: string
   } | null>(null)
+  const [activeSlideIndex, setActiveSlideIndex] = useState<number>(0)
 
   useEffect(() => {
+    setActiveSlideIndex(0)
     fetchProject()
     window.scrollTo(0, 0)
   }, [slug])
@@ -152,11 +161,16 @@ export default function ProjectDetail() {
     setError(false)
 
     try {
-      const { data } = await supabase
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error("Supabase fetch timeout")), 2500),
+      )
+      const fetchPromise = supabase
         .from("projects")
         .select("*, project_gallery(*)")
         .eq("status", "published")
         .order("created_at", { ascending: false })
+
+      const { data }: any = await Promise.race([fetchPromise, timeoutPromise])
 
       const sortedMock = sortProjectsByOrder(mockProjects)
 
@@ -283,6 +297,179 @@ export default function ProjectDetail() {
   const hasAnyLinks =
     hasLive || hasVideo || hasGithub || hasFigma || hasInstagram || hasDrive
 
+  // Determine special visual framing modes (explicit display mode from admin OR auto subcategory detection)
+  const explicitDisplayMode = getProjectDisplayMode(project)
+
+  const isSocialMedia =
+    explicitDisplayMode === "instagram" ||
+    (explicitDisplayMode === "auto" &&
+      Boolean(
+        subcategory.toLowerCase().includes("social") ||
+          subcategory.toLowerCase().includes("content design") ||
+          (Array.isArray(project.tags) &&
+            project.tags.some(
+              (t) =>
+                typeof t === "string" &&
+                ["social media", "instagram", "feeds"].some((kw) =>
+                  t.toLowerCase().includes(kw),
+                ),
+            )),
+      ))
+
+  const isVisualIdentity =
+    explicitDisplayMode === "logo_matrix" ||
+    (explicitDisplayMode === "auto" &&
+      Boolean(
+        subcategory.toLowerCase().includes("visual identity") ||
+          subcategory.toLowerCase().includes("logo") ||
+          (Array.isArray(project.tags) &&
+            project.tags.some(
+              (t) =>
+                typeof t === "string" &&
+                ["visual identity", "logo design", "brand identity"].some((kw) =>
+                  t.toLowerCase().includes(kw),
+                ),
+            )),
+      ))
+
+  const isPhotography =
+    explicitDisplayMode === "photography" ||
+    (explicitDisplayMode === "auto" &&
+      Boolean(
+        subcategory.toLowerCase().includes("photo") ||
+          subcategory.toLowerCase().includes("fotografi") ||
+          canonicalCategory.toLowerCase().includes("photo") ||
+          canonicalCategory.toLowerCase().includes("fotografi") ||
+          (Array.isArray(project.tags) &&
+            project.tags.some(
+              (t) =>
+                typeof t === "string" &&
+                [
+                  "photo",
+                  "fotografi",
+                  "commercial photography",
+                  "portraiture",
+                  "visual storytelling",
+                ].some((kw) => t.toLowerCase().includes(kw)),
+            )),
+      ))
+
+  const isVerticalVideo =
+    explicitDisplayMode === "vertical_video" ||
+    (explicitDisplayMode === "auto" &&
+      Boolean(
+        (subcategory.toLowerCase().includes("video") ||
+          subcategory.toLowerCase().includes("reels") ||
+          subcategory.toLowerCase().includes("motion")) &&
+          Array.isArray(project.tags) &&
+          project.tags.some(
+            (t) =>
+              typeof t === "string" &&
+              ["reels", "tiktok", "shorts", "vertical", "short-form"].some((kw) =>
+                t.toLowerCase().includes(kw),
+              ),
+          ),
+      ))
+
+  // Extract Instagram slides (no cover fallback needed)
+  const instagramSlides: SlideItem[] = (() => {
+    if (gallery.length > 0) {
+      return gallery.map((item, idx) => ({
+        imageUrl: item.image_url,
+        alt: item.title || `Slide ${idx + 1}`,
+        title: item.title || `Slide ${idx + 1}`,
+        caption: item.caption || "",
+      }))
+    }
+    if (Array.isArray(project.tags)) {
+      for (const tag of project.tags) {
+        if (
+          typeof tag === "string" &&
+          (tag.startsWith("__gmeta:") || tag.startsWith("__gallery_meta:"))
+        ) {
+          try {
+            const prefixLen = tag.startsWith("__gmeta:") ? 8 : 15
+            const parsed = JSON.parse(tag.slice(prefixLen))
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              return parsed
+                .filter((m: any) => Boolean(m.image_url))
+                .map((m: any, idx: number) => ({
+                  imageUrl: m.image_url,
+                  alt: m.title || `Slide ${idx + 1}`,
+                  title: m.title || `Slide ${idx + 1}`,
+                  caption: m.caption || "",
+                }))
+            }
+          } catch {
+            // ignore JSON error
+          }
+        }
+      }
+    }
+    return []
+  })()
+
+  const currentSlide =
+    instagramSlides[activeSlideIndex] || instagramSlides[0] || { imageUrl: "" }
+
+  // Extract Logo items (no cover fallback)
+  const logoItems: LogoItem[] =
+    gallery.length > 0
+      ? gallery.map((item, idx) => ({
+          id: item.id || `logo-${idx}`,
+          name: item.title || `Brand Mark ${idx + 1}`,
+          logoUrl: item.image_url,
+          industry: item.caption?.split("·")[0]?.trim() || "Visual Identity",
+          conceptNote: item.caption,
+          year: project.year,
+          bgTone: idx % 3 === 0 ? "light" : idx % 3 === 1 ? "cream" : "dark",
+        }))
+      : (function () {
+          if (Array.isArray(project.tags)) {
+            for (const tag of project.tags) {
+              if (
+                typeof tag === "string" &&
+                (tag.startsWith("__gmeta:") || tag.startsWith("__gallery_meta:"))
+              ) {
+                try {
+                  const prefixLen = tag.startsWith("__gmeta:") ? 8 : 15
+                  const parsed = JSON.parse(tag.slice(prefixLen))
+                  if (Array.isArray(parsed) && parsed.length > 0) {
+                    return parsed
+                      .filter((m: any) => Boolean(m.image_url))
+                      .map((m: any, idx: number) => ({
+                        id: `gmeta-${idx}`,
+                        name: m.title || `Brand Mark ${idx + 1}`,
+                        logoUrl: m.image_url,
+                        industry:
+                          m.caption?.split("·")[0]?.trim() || "Brand Identity",
+                        conceptNote: m.caption,
+                        year: project.year,
+                        bgTone:
+                          idx % 3 === 0
+                            ? "light"
+                            : idx % 3 === 1
+                              ? "cream"
+                              : "dark",
+                      }))
+                  }
+                } catch {
+                  // ignore JSON parse error
+                }
+              }
+            }
+          }
+          return []
+        })()
+
+  // Suppress bottom attachments/gallery if the hero interactive mockup showcases the assets
+  const showBottomGallery =
+    !isSocialMedia &&
+    !isVisualIdentity &&
+    !isVerticalVideo &&
+    !isPhotography &&
+    gallery.length > 0
+
   return (
     <PublicLayout>
       <div
@@ -300,7 +487,7 @@ export default function ProjectDetail() {
 
           <div className="grid md:grid-cols-3 gap-8 md:gap-16 mb-8 md:mb-12">
             <div className="md:col-span-2">
-              {/* Category, Subcategory & Year Badges */}
+              {/* Category, Subcategory, Role Badge & Year */}
               <div className="flex flex-wrap items-center gap-2 mb-4">
                 <span
                   className="font-mono text-xs font-semibold px-2.5 py-1 border tracking-wider uppercase rounded-xs"
@@ -322,6 +509,19 @@ export default function ProjectDetail() {
                     }}
                   >
                     {subcategory}
+                  </span>
+                )}
+                {project.role && (
+                  <span
+                    className="inline-flex items-center gap-1.5 font-mono text-xs font-semibold px-2.5 py-1 rounded border"
+                    style={{
+                      backgroundColor: "#FFFFFF",
+                      borderColor: "var(--color-border)",
+                      color: "var(--color-ink)",
+                    }}
+                  >
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                    {project.role}
                   </span>
                 )}
                 {project.year && (
@@ -534,24 +734,235 @@ export default function ProjectDetail() {
           </div>
         </section>
 
-        {/* ── HERO MEDIA SECTION: Video Embed or High-Res Cover Frame ─────────── */}
-        {videoEmbedUrl ? (
-          <section className="max-w-[1440px] mx-auto px-5 sm:px-8 md:px-16 pb-12 md:pb-16">
+        {/* ── HERO MEDIA SECTION: DYNAMIC FRAMING (INSTAGRAM, REELS, LOGO MATRIX, VIDEO, OR COVER) ── */}
+        <section className="max-w-[1440px] mx-auto px-5 sm:px-8 md:px-16 pb-12 md:pb-16">
+          {isVisualIdentity && logoItems.length > 0 ? (
+            /* Visual Identity Mode: Logo Matrix Grid Showcase */
             <div
-              className="w-full aspect-video rounded-lg md:rounded-xl overflow-hidden shadow-xl border bg-black"
-              style={{ borderColor: "var(--color-border)" }}
+              className="p-6 sm:p-10 rounded-2xl border shadow-sm"
+              style={{
+                backgroundColor: "var(--color-surface)",
+                borderColor: "var(--color-border)",
+              }}
             >
-              <iframe
-                src={videoEmbedUrl}
-                title={project.title}
-                className="w-full h-full"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
+              <LogoMatrixGrid
+                title="Selected Brand Identity & Logo Marks"
+                subtitle={project.subtitle || "Koleksi logo dan identitas visual yang dirancang untuk beragam institusi dan brand."}
+                items={logoItems}
+                columns={4}
               />
             </div>
-          </section>
-        ) : (
-          <section className="max-w-[1440px] mx-auto px-5 sm:px-8 md:px-16 pb-12 md:pb-16">
+          ) : isSocialMedia && instagramSlides.length > 0 ? (
+            /* Social Media Mode: Compact Case Study with Instagram Post Mockup */
+            <div className="grid lg:grid-cols-12 gap-8 lg:gap-12 items-start">
+              {/* Left Column: Instagram Post Mockup */}
+              <div className="lg:col-span-5 flex justify-center">
+                <InstagramPostMockup
+                  slides={instagramSlides}
+                  activeSlideIndex={activeSlideIndex}
+                  onSlideChange={(idx) => setActiveSlideIndex(idx)}
+                  caption={currentSlide.caption || project.subtitle || project.description}
+                  brandTag={project.title}
+                  likeCount="2.4K"
+                  accountName="Layar Putih Studio"
+                  accountHandle="layarputih.studio"
+                  maxWidth="460px"
+                />
+              </div>
+
+              {/* Right Column: Case Study Highlights with Slide-Synchronized Narrative */}
+              <div className="lg:col-span-7 flex flex-col gap-6">
+                <div
+                  className="p-6 sm:p-8 rounded-2xl border transition-all duration-300 shadow-xs"
+                  style={{
+                    backgroundColor: "var(--color-surface)",
+                    borderColor: "var(--color-border)",
+                  }}
+                >
+                  <div
+                    className="flex flex-wrap items-center justify-between gap-2 mb-4 pb-3 border-b"
+                    style={{ borderColor: "var(--color-border-light)" }}
+                  >
+                    <div className="flex items-center gap-2">
+                      <span className="font-mono text-xs font-semibold px-2.5 py-1 rounded bg-pink-100 text-pink-700">
+                        Instagram Content Design
+                      </span>
+                      <span className="font-mono text-xs text-gray-400">
+                        · Multi-Format Showcase
+                      </span>
+                    </div>
+                    {instagramSlides.length > 1 && (
+                      <span className="font-mono text-xs font-bold px-2.5 py-1 rounded-full bg-black text-white">
+                        Slide {activeSlideIndex + 1} / {instagramSlides.length}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Dynamic Slide Title */}
+                  <h3
+                    className="font-sans font-bold text-xl sm:text-2xl mb-3 transition-all duration-200"
+                    style={{
+                      color: "var(--color-ink)",
+                      letterSpacing: "-0.02em",
+                    }}
+                  >
+                    {currentSlide.title || "Strategi Desain & Hierarki Informasi"}
+                  </h3>
+
+                  {/* Dynamic Slide Caption / Narrative */}
+                  <p
+                    className="text-sm leading-relaxed mb-6 transition-all duration-200"
+                    style={{ color: "var(--color-muted)" }}
+                  >
+                    {currentSlide.caption ||
+                      project.description ||
+                      "Perancangan konten visual berorientasi engagement dan estetika editorial. Menggabungkan layout modular, tipografi yang tegas, dan palet warna selaras untuk membangun identitas visual yang konsisten di linimasa media sosial."}
+                  </p>
+
+                  {/* Interactive Slide Selector Pills */}
+                  {instagramSlides.length > 1 && (
+                    <div
+                      className="mb-6 pt-4 border-t"
+                      style={{ borderColor: "var(--color-border-light)" }}
+                    >
+                      <p className="font-mono text-[11px] uppercase tracking-wider text-gray-500 font-semibold mb-2.5 flex items-center justify-between">
+                        <span>Pilih Slide ({instagramSlides.length} Format):</span>
+                        <span className="text-[10px] text-gray-400 font-normal">
+                          Klik untuk berganti slide
+                        </span>
+                      </p>
+                      <div className="flex flex-wrap gap-1.5 max-h-36 overflow-y-auto pr-1">
+                        {instagramSlides.map((slide, sIdx) => {
+                          const isActive = sIdx === activeSlideIndex
+                          return (
+                            <button
+                              key={sIdx}
+                              type="button"
+                              onClick={() => setActiveSlideIndex(sIdx)}
+                              className="text-left font-mono text-[11px] px-2.5 py-1.5 rounded border transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs"
+                              style={{
+                                borderColor: isActive
+                                  ? "var(--color-ink)"
+                                  : "var(--color-border)",
+                                backgroundColor: isActive
+                                  ? "var(--color-ink)"
+                                  : "#FFFFFF",
+                                color: isActive
+                                  ? "#FFFFFF"
+                                  : "var(--color-ink)",
+                                fontWeight: isActive ? 700 : 400,
+                              }}
+                            >
+                              <span className="opacity-70 text-[10px]">
+                                {sIdx + 1}.
+                              </span>
+                              <span className="truncate max-w-[160px]">
+                                {slide.title || `Slide ${sIdx + 1}`}
+                              </span>
+                            </button>
+                          )
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Deliverables & Strategic Focus */}
+                  <div
+                    className="grid sm:grid-cols-2 gap-4 pt-4 border-t"
+                    style={{ borderColor: "var(--color-border-light)" }}
+                  >
+                    <div>
+                      <h4 className="font-mono text-xs uppercase tracking-wider text-gray-500 mb-1 font-semibold">
+                        Format Deliverables
+                      </h4>
+                      <p
+                        className="text-xs font-medium"
+                        style={{ color: "var(--color-ink)" }}
+                      >
+                        Potret 4:5 (1080×1350), Story 9:16, Campaign Posters
+                      </p>
+                    </div>
+                    <div>
+                      <h4 className="font-mono text-xs uppercase tracking-wider text-gray-500 mb-1 font-semibold">
+                        Fokus Utama
+                      </h4>
+                      <p
+                        className="text-xs font-medium"
+                        style={{ color: "var(--color-ink)" }}
+                      >
+                        Readability, Visual Hook, Brand Recall
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          ) : isPhotography && gallery.length > 0 ? (
+            /* Photography Mode: Auto-scroll Flexible Showcase in Natural Aspect Ratios (Tanpa Cover) */
+            <div className="w-full flex flex-col gap-4">
+              <PhotographyShowcase
+                photos={gallery}
+                autoPlayInterval={3500}
+                onPhotoZoom={(photo) => setSelectedItem(photo)}
+              />
+            </div>
+          ) : isVerticalVideo ? (
+            /* Vertical Reels / TikTok Mode: Phone Frame (Tanpa Perlu Cover) */
+            <div className="grid lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+              <div className="lg:col-span-5 flex justify-center">
+                <PhoneReelsMockup
+                  posterUrl={project.cover_url || ""}
+                  videoUrl={effectiveVideoUrl}
+                  title={project.title}
+                  roleLabel={project.role || "Videographer & Editor"}
+                  clientName={project.subtitle}
+                />
+              </div>
+              <div className="lg:col-span-7 flex flex-col gap-6">
+                <div
+                  className="p-6 sm:p-8 rounded-2xl border"
+                  style={{
+                    backgroundColor: "var(--color-surface)",
+                    borderColor: "var(--color-border)",
+                  }}
+                >
+                  <span className="font-mono text-xs font-semibold px-2 py-0.5 rounded bg-blue-100 text-blue-700 inline-block mb-3">
+                    Short-Form &amp; Vertical Video
+                  </span>
+                  <h3
+                    className="font-sans font-bold text-xl sm:text-2xl mb-3"
+                    style={{ color: "var(--color-ink)", letterSpacing: "-0.02em" }}
+                  >
+                    Produksi Sinematografi &amp; Editing Vertikal
+                  </h3>
+                  <p
+                    className="text-sm leading-relaxed mb-4"
+                    style={{ color: "var(--color-muted)" }}
+                  >
+                    {project.description ||
+                      "Perancangan video dengan pendekatan visual storytelling dinamis, ritme editing presisi, dan color grading sinematik yang dirancang khusus untuk konsumsi layar smartphone."}
+                  </p>
+                  {effectiveVideoUrl && (
+                    <p className="font-mono text-xs text-gray-500">
+                      ▶ Klik layar ponsel untuk memutar / menjeda video langsung di browser.
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
+          ) : videoEmbedUrl ? (
+            /* 16:9 Landscape Video in MacBook / Laptop Mockup Frame (Tanpa Perlu Cover) */
+            <div className="w-full flex justify-center">
+              <LaptopMockup
+                videoEmbedUrl={videoEmbedUrl}
+                alt={project.title}
+                urlBarText={effectiveVideoUrl ? "youtube.com/watch?v=..." : undefined}
+                maxWidth="960px"
+              />
+            </div>
+          ) : project.cover_url ? (
+            /* Standard High-Res Cover Frame (Hanya bila ada cover) */
             <div
               className="w-full rounded-lg md:rounded-xl overflow-hidden border shadow-md relative group cursor-pointer transition-all duration-300"
               style={{
@@ -567,34 +978,39 @@ export default function ProjectDetail() {
                 })
               }
             >
-              {project.cover_url ? (
-                <>
-                  <div className="w-full flex items-center justify-center p-2 sm:p-4 md:p-6 min-h-[260px] sm:min-h-[320px] max-h-[760px] overflow-hidden">
-                    <img
-                      src={project.cover_url}
-                      alt={project.title}
-                      className="w-full h-auto max-h-[700px] object-contain rounded-md transition-transform duration-500 group-hover:scale-[1.01]"
-                    />
-                  </div>
-                  <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
-                    <span className="bg-black/85 text-white font-mono text-xs px-4 py-2 rounded-full shadow-xl backdrop-blur-xs">
-                      🔍 Klik untuk memperbesar foto cover
-                    </span>
-                  </div>
-                </>
-              ) : (
-                <div className="py-24 text-center">
-                  <p
-                    className="font-mono text-xs"
-                    style={{ color: "var(--color-muted)" }}
-                  >
-                    Tidak ada gambar cover
-                  </p>
-                </div>
-              )}
+              <div className="w-full flex items-center justify-center p-2 sm:p-4 md:p-6 min-h-[260px] sm:min-h-[320px] max-h-[760px] overflow-hidden">
+                <SafeImage
+                  src={project.cover_url}
+                  alt={project.title}
+                  className="w-full h-auto max-h-[700px] object-contain rounded-md transition-transform duration-500 group-hover:scale-[1.01]"
+                />
+              </div>
+              <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
+                <span className="bg-black/85 text-white font-mono text-xs px-4 py-2 rounded-full shadow-xl backdrop-blur-xs">
+                  🔍 Klik untuk memperbesar foto
+                </span>
+              </div>
             </div>
-          </section>
-        )}
+          ) : gallery.length > 0 ? (
+            /* Galeri visual alternatif jika cover tidak diatur */
+            <div className="w-full grid grid-cols-2 md:grid-cols-3 gap-4">
+              {gallery.map((item, idx) => (
+                <div
+                  key={idx}
+                  onClick={() => setSelectedItem(item)}
+                  className="aspect-square rounded-xl overflow-hidden border bg-stone-100 cursor-pointer hover:opacity-90 transition-opacity"
+                  style={{ borderColor: "var(--color-border)" }}
+                >
+                  <SafeImage
+                    src={item.image_url}
+                    alt={item.title || ""}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              ))}
+            </div>
+          ) : null}
+        </section>
 
         {/* ── MODULAR CASE STUDY SECTIONS (HANYA RENDER JIKA ADA DATA) ─── */}
         {sections.length > 0 && (
@@ -644,7 +1060,7 @@ export default function ProjectDetail() {
         )}
 
         {/* ── ADAPTIVE GALLERY & SCREENSHOTS SECTION ───────────────────── */}
-        {gallery.length > 0 && (
+        {showBottomGallery && (
           <section className="max-w-[1440px] mx-auto px-5 sm:px-8 md:px-16 pb-16 md:pb-24">
             <div
               className="flex items-center justify-between mb-6 pb-2 border-b"
@@ -692,7 +1108,7 @@ export default function ProjectDetail() {
                   >
                     {/* Visual Media Frame */}
                     <div className="w-full flex items-center justify-center overflow-hidden bg-[#F4F4F2] p-2.5 sm:p-4 min-h-[220px] max-h-[460px]">
-                      <img
+                      <SafeImage
                         src={item.image_url}
                         alt={item.title || `Visual ${i + 1}`}
                         loading="lazy"
@@ -927,7 +1343,7 @@ export default function ProjectDetail() {
               </button>
 
               {/* Full Image */}
-              <img
+              <SafeImage
                 src={selectedItem.image_url}
                 alt={selectedItem.title || "Detail preview"}
                 className="max-w-full max-h-[75vh] object-contain rounded-lg shadow-2xl"

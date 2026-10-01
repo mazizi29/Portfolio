@@ -58,7 +58,7 @@ export default function Contact() {
   ]
 
   const waTemplate =
-    "Halo Azizi, salam kenal! Saya [Nama/Instansi]. Baru saja melihat portofolio Anda dan tertarik untuk terhubung serta berdiskusi lebih lanjut."
+    "Halo Azizi, salam kenal! Saya [Nama/Instansi]. Baru saja melihat portofolio visual Anda dan tertarik untuk berdiskusi mengenai proyek desain grafis / fotografi / video editing."
   const waLink = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(waTemplate)}`
 
   return (
@@ -131,7 +131,7 @@ export default function Contact() {
                     }}
                   >
                     <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                    Terbuka untuk Magang
+                    Terbuka untuk Kolaborasi &amp; Proyek
                   </div>
                   <h3
                     className="font-sans font-bold text-2xl md:text-3xl mb-3"
@@ -149,11 +149,12 @@ export default function Contact() {
                       fontFamily: "var(--font-sans)",
                     }}
                   >
-                    Saya sedang aktif mencari kesempatan magang di bidang{" "}
-                    <strong>UI/UX Design</strong> atau{" "}
-                    <strong>Front-End Web</strong>. Jika Anda sedang membangun
-                    produk digital dan mencari seseorang yang siap berkontribusi
-                    langsung dengan dedikasi penuh, mari terhubung.
+                    Saya terbuka untuk proyek <strong>Desain Grafis</strong>,{" "}
+                    <strong>Fotografi</strong>, <strong>Video Editing</strong>,
+                    maupun kolaborasi visual kreatif lainnya melalui{" "}
+                    <strong>Layar Putih Creative Studio</strong>. Jika Anda
+                    memiliki ide atau kebutuhan visual yang ingin diwujudkan,
+                    mari berdiskusi bersama.
                   </p>
                 </div>
 

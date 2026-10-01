@@ -72,7 +72,7 @@ export default function AdminLayout({
           <div className="flex items-center gap-3">
             <img
               src="/logo.png"
-              alt="Logo"
+              alt="Logo Muhammad Azizi Abdillah"
               className="w-7 h-7 object-contain"
               style={{ filter: "invert(1)" }}
             />

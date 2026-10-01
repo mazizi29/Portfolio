@@ -46,7 +46,7 @@ export default function AdminExperience() {
     const { error } = await supabase.from("experience").delete().eq("id", id)
     if (error) {
       console.error("Error deleting experience:", error)
-      alert("Gagal menghapus pengalaman.")
+      alert(`Gagal menghapus pengalaman: ${error.message}`)
     } else {
       setItems((prev) => prev.filter((e) => e.id !== id))
     }
